@@ -1,0 +1,353 @@
+---
+title: "hw_04"
+author: "lisa liubovich"
+date: "2023-10-18"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(repos = c(CRAN = "https://cran.rstudio.com/"))
+```
+
+# 1. flights
+
+1.  **Load and Review Data**
+
+```{r 1.1a}
+install.packages("tidyverse")
+library(tidyverse)
+install.packages("dplyr")
+library(dplyr)
+install.packages("nycflights13")
+library(nycflights13)
+install.packages("ggplot2")
+library(ggplot2)
+```
+
+```{r 1.1a, 1.1b, 1.1c}
+data(flights)
+names(flights)
+nrow(flights)
+```
+
+> 1.1b: variables: year, month, day, departure time, scheduled departure time, departure delay, arrival time, scheduled arrival time, arrival delay, carrier, flight, tail number, origin, destination, air time, distance, hour, minute, and time hour
+>
+> 1.1c: number of observations/rows: 336,776
+
+```{r 1.1d}
+flights %>% 
+  slice_head(n = 3)
+```
+
+2.  **Worst Plane to Fly**
+
+```{r 1.2a}
+flights %>% 
+  group_by(tailnum) %>% 
+  summarize(avg_delay = mean(dep_delay, na.rm = TRUE)) %>% 
+  arrange(desc(avg_delay)) %>% 
+  slice_head(n = 3)
+```
+
+> 1.2a: Plane N844MH had the worst delay record with 297 minutes, followed by Plane N922EV with 274 minutes, and Plane N587NW with 272 minutes.
+
+```{r 1.2b}
+top_3_worst <- flights %>% 
+  group_by(tailnum) %>% 
+  summarize(avg_delay = mean(dep_delay, na.rm = TRUE)) %>% 
+  arrange(desc(avg_delay)) %>% 
+  slice_head(n = 3)
+
+flights %>% 
+  filter(tailnum %in% top_3_worst$tailnum) %>% 
+  group_by(tailnum) %>% 
+  summarize(number_of_flights = n())
+```
+
+> 1.2b: each plane has taken one trip.
+
+```{r 1.2c}
+flights %>% 
+  group_by(tailnum) %>% 
+  summarize(
+    avg_delay = mean(dep_delay, na.rm = TRUE),
+    num_trips = n()
+  ) %>% 
+  filter(num_trips > 15) %>% 
+  arrange(desc(avg_delay)) %>% 
+  slice_head(n = 3)
+```
+
+> 1.2c: the three planes that have taken more than 15 trips and have the worst departure delay records are N184DN (54.68750 min), N203FR (53.53659 min), and N645MQ (52.5 min).
+
+3.  **Best Time of Day to Fly**
+
+```{r 1.3a}
+flights %>% 
+  group_by(hour) %>%
+  summarize(avg_delay = mean(dep_delay, na.rm = TRUE))
+```
+
+```{r 1.3b}
+avg_dep_del_by_hour <-flights %>% 
+  group_by(hour) %>% 
+  summarize(avg_del = mean(dep_delay, na.rm = TRUE))
+
+ggplot(avg_dep_del_by_hour, mapping = aes(x = hour, y = avg_del)) +
+  geom_col() +
+  xlab("Hour of Departure") +
+  ylab("Average Departure Delay (mins)") +
+  ggtitle("Average Departure Delay by Hour of Day") +
+  theme_bw()
+```
+
+> 1.3c: you should schedule your trip at 5 am in order to minimize your expected delay time.
+
+4.  **Worst Trips for Each Destination**
+
+```{r 1.4a}
+flights %>% 
+  group_by(dest) %>% 
+  mutate(
+    total_delay_dest = sum(arr_delay, na.rm = TRUE),
+    prop_delay_dest = arr_delay / total_delay_dest,
+    num_trips = n()
+  ) %>% 
+  arrange(desc(prop_delay_dest)) %>% 
+  select(dest, total_delay_dest, flight, prop_delay_dest, num_trips, year, month, day,) %>% 
+  filter(total_delay_dest >= 0) %>% 
+  slice(1) %>% 
+  ungroup()
+```
+
+```{r 1.4b}
+flights %>% 
+  group_by(dest) %>% 
+  mutate(
+    total_delay_dest = sum(arr_delay, na.rm = TRUE),
+    prop_delay_dest = arr_delay / total_delay_dest,
+    num_trips = n()
+  ) %>% 
+  arrange(desc(prop_delay_dest)) %>% 
+  select(dest, total_delay_dest, flight, prop_delay_dest, num_trips) %>%
+  filter(total_delay_dest >= 0) %>% 
+  slice(1) %>% 
+  ungroup()
+```
+
+5.  **Destinations with Multiple Carriers from the NYC Area**
+
+```{r 1.5}
+flights %>% 
+  group_by(dest) %>% 
+  summarize(num_carriers = n_distinct(flights$carrier)) %>% 
+  filter(num_carriers >= 3)
+
+flights %>% 
+  filter(dest %in% c("JFK", "LGA", "EWR")) %>% 
+  group_by(dest) %>%
+  summarise(num_carriers = n_distinct(carrier)) %>%
+  arrange(desc(num_carriers)) %>% 
+  slice(35:40)
+```
+
+6.  **Effect of the Delay in the Flight before Yours**
+
+```{r 1.6.1a}
+airport_correlation <- flights %>%
+  arrange(carrier, origin, year, month, day, sched_dep_time) %>%
+  group_by(carrier, origin) %>%
+  mutate(prev_dep_delay = lag(dep_delay)) %>%
+  filter(!is.na(dep_delay) & !is.na(prev_dep_delay)) %>% 
+  group_by(origin, year, month, day) %>%
+  summarize(
+    mean_corr = mean(cor(dep_delay, prev_dep_delay, use = "complete.obs")),
+    median_corr = median(cor(dep_delay, prev_dep_delay, use = "complete.obs")),
+    days_considered = n_distinct(year, month, day)
+  ) %>%
+  arrange(desc(mean_corr))
+
+print(airport_correlation)
+# i hope you know this question took me several hours. please have mercy on me i am just a girl
+```
+
+```{r 1.6.1b}
+ggplot(airport_correlation, aes(x = origin, y = mean_corr)) +
+  geom_boxplot() +
+  xlab("Airport (origin)") +
+  ylab("Mean Daily Correlation") +
+  coord_flip() +
+  theme_minimal()
+```
+
+> 1.6.1b: EWR has the highest average daily correlation.
+
+```{r 1.6.2 EXTRA CREDIT}
+flight_data <- flights %>%
+  arrange(carrier, origin, year, month, day, sched_dep_time) %>%
+  group_by(carrier, origin) %>%
+  mutate(prev_dep_delay = lag(dep_delay))
+         
+set.seed(123)
+
+sample_data <- sample_n(flight_data, 50000, replace = TRUE)
+
+ggplot(sample_data, aes(x = prev_dep_delay, y = dep_delay)) +
+  geom_point() +
+  xlab("Previous Flights Delay by Origin") +
+  ylab("Current Flight's Departure Delay") +
+  theme_minimal()
+```
+
+# 2. Star Wars Characters
+
+```{r 2.1}
+library(dplyr)
+data("starwars")
+install.packages("ggplot2")
+library(ggplot2)
+```
+
+```{r 2.2}
+df <- starwars %>% 
+  filter(is.na(gender)) %>% 
+  select(name, height) %>% 
+  arrange(height)
+
+df
+```
+
+```{r 2.3}
+starwars <- starwars %>% 
+  mutate(gender = ifelse(is.na(gender), "nonbinary", gender))
+```
+
+```{r 2.4}
+starwars <- starwars %>% 
+  mutate(height_meters = height / 100)
+
+starwars <- starwars %>%
+  mutate(BMI = mass / (height_meters ^ 2)) %>% 
+  relocate(BMI, .after = 1)
+
+print(starwars)
+```
+
+```{r 2.4 sanity check!! ive already lost it!!}
+median_bmi <- starwars %>% 
+  summarise(median_BMI = median(BMI, na.rm = TRUE))
+
+if (median_bmi$median_BMI >= 20 && median_bmi$median_BMI <= 30) {
+  cat("The median BMI is within the 20-30 range:", median_bmi$median_BMI, "\n")
+} else {
+  cat("The median BMI is not within the 20-30 range:", median_bmi$median_BMI, "\n")
+}
+
+```
+
+```{r 2.5}
+starwars %>%
+  group_by(gender) %>%
+  summarize(
+    median_height = median(height, na.rm = TRUE),
+    mean_height = mean(height, na.rm = TRUE),
+    n_individuals = n()
+  )
+```
+
+```{r 2.6}
+ggplot(starwars, mapping = aes(x = gender, y = BMI)) +
+  geom_boxplot() +
+  scale_y_log10() +
+  xlab("Gender") +
+  ylab("BMI") +
+  ggtitle("Gender vs. BMI Boxplots")
+  theme_bw()
+```
+
+```{r 2.7}
+ggplot(starwars, mapping = aes(x = log(mass), y = height)) +
+  geom_point() +
+  facet_wrap(~gender) +
+  xlab("Log(mass)") +
+  ylab("Height") +
+  ggtitle("Log(mass) vs. height, faceted by gender")
+```
+
+```{r 2.8}
+filtered_starwars <- starwars %>%
+  filter(birth_year < 120)
+
+ggplot(filtered_starwars, mapping = aes(x = birth_year, y = height, color = gender)) +
+  geom_point() +
+  geom_smooth(method = loess, color = "black", se = FALSE, linetype = "dashed") +
+  scale_x_continuous() +
+  scale_y_continuous() +
+  xlab("Birth Year") +
+  ylab("Height") +
+  theme_minimal()
+```
+
+# 3. The Palmer Penguins Package
+
+```{r 3.1a, 3.1b}
+library(palmerpenguins)
+data(penguins)
+penguins %>% 
+  slice_head(n = 6)
+```
+
+```{r 3.2a, 3.2b}
+penguins <- penguins %>%
+  mutate(fb_ratio = flipper_length_mm / pmax(bill_length_mm, bill_depth_mm))
+
+print(penguins)
+```
+
+```{r 3.3}
+penguins %>%
+  filter(!is.na(fb_ratio), !is.na(sex)) %>%
+  group_by(sex) %>%
+  arrange(desc(fb_ratio)) %>%
+  slice_head(n = 4) %>%
+  select(sex, fb_ratio)
+```
+
+```{r 3.4a}
+median_stat <- penguins %>%
+  group_by(species, sex) %>%
+  summarize(
+    median_bill_length = median(bill_length_mm, na.rm = TRUE),
+    median_bill_depth = median(bill_depth_mm, na.rm = TRUE)
+  )
+
+print(median_stat)
+```
+
+```{r 3.4b}
+ggplot(median_stat, aes(x = median_bill_length, y = median_bill_depth, fill = sex)) +
+  geom_bar(stat = "identity", position = position_dodge(preserve = "total"), width = 0.7) +
+  xlab("Median Bill Length") +
+  ylab("Median Bill Depth") +
+  ggtitle("Median Bill Length vs Median Bill Depth by Species and Sex") +
+  facet_wrap(~species)
+```
+
+> 3.4c: Adelie penguins generally tend to have higher larger median bill depth and smaller median bill length while Chinstrap and Gentoo penguins both tend to have both higher median bill depth and length, with male penguins in every species having both higher median bill depth and length compared to their female counterparts.
+
+```{r 3.5}
+penguins %>%
+  filter_all(all_vars(!is.na(.))) %>%
+  nrow()
+```
+
+> 3.5: 333 rows have no missing values.
+
+```{r 3.6}
+unique_value_counts <- penguins %>%
+  group_by(sex) %>%
+  summarise(across(ends_with("_mm"), ~ n_distinct(.)))
+
+print(unique_value_counts)
+```

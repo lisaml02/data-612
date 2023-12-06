@@ -1,0 +1,121 @@
+---
+title: "class_10_6"
+author: "lisa liubovich"
+date: "2023-10-06"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+install.packages("tidyverse")
+library(tidyverse)
+install.packages("dplyr")
+library(dplyr)
+install.packages("ggplot2")
+library(ggplot2)
+install.packages("nycflight13")
+library(nycflights13)
+```
+```{r}
+flights %>% 
+  rowwise %>% 
+  mutate(total = sum(c_across(where(is.numeric)))) # with rowwise, always use c across. for a logical vector, c_across finds where the output contains true and creates a column of trues
+```
+
+```{r}
+flights %>% transmute(total = rowSums(across(where(is.numeric)))) # this is better because it is much much faster than the obove option using rowwise. rowSums and rowMeans are faster
+```
+```{r}
+starwars %>% 
+  mutate(total = max(c_across(where(is.numeric)), na.rm = TRUE)) 
+# this gave me the same number in the total column because we didn't use rowwise, but that number is the highest value of all those columns. 
+```
+
+```{r}
+starwars %>% 
+  rowwise() %>% 
+  mutate(max_a = max(height, mass, birth_year, na.rm = TRUE)) %>% 
+  ungroup() %>%  # you need to drop the grouping attribute once you're done with grouping, because rowwise is a grouping function
+  relocate(max_a) %>% 
+  select(name, is.numeric) %>% # only include name and numeric columns
+  slice_max(max_a)
+```
+
+```{r}
+# across is a good way to have more efficient code. does the same operation across different columns. 
+
+# across(.col =    ,.fns = mean  ,.names), where fns is the function (or list of function) applied to each column and names is the name of the new columns, and mean is the chosen operation. 
+
+#df |>  summarize(across(c(col1), col2), list(mean, sd))) creates new column with mean of col1 and 2 and another new column sd of col1 and 2, leaving us with 4 columns total. 
+
+# if you add df |> group_by(g1, g2) %>% , adds more rows based on different combinations of the groups
+
+#c_across only occurs with rowwise() 
+
+starwars %>% 
+  group_by(eye_color, species) %>% # starts with eye color, then performs the function based on species too
+  summarize(across(where(is.numeric),
+                   .fns = list(mean,median), na.rm = TRUE),
+            .groups = "drop")
+
+```
+
+```{r}
+starwars %>% 
+  summarize(across(where(is.numeric),
+                   .fns = list(mean, median), na.rm = TRUE),
+            .groups = "drop")
+
+# there are 2 functions we are performing and three original numeric columns, therefore we now have six columns because across applies each function to each column
+```
+
+```{r}
+starwars %>% 
+          summarise(across(where(is.numeric), 
+                           ~ median(.x,na.rm = TRUE)),  # another notation of just saying "take the median" but this notation is helpful. 
+                    .groups = "drop")
+```
+```{r}
+# summarize all rows
+starwars %>% 
+  summarise(across(where(is.character), 
+                   ~ length(unique(.x)))) # summarizes across character columns only and gives the levels (categories) for each character column. ie. for column eye color, there are 15 levels like blue, black, etc. 
+```
+```{r}
+starwars %>% 
+  group_by(species) %>% # list all the summary by species 
+  filter(n() > 1) %>% # each group that has more than 1 number of rows/observations
+  summarise(across(c(sex, gender, homeworld), # summarize across these columns
+                   ~ length(unique(.x))), # find number of levels
+                   n=n()) # creating a new a column with number of observations
+```
+
+```{r}
+starwars %>% 
+  group_by(homeworld) %>% 
+  filter(n() > 1) %>% # only take groups that have more than one observation
+  summarise(across(where(is.numeric), # summarizes across numeric vectors only
+                   ~ max(.x, na.rm = TRUE)))   # computes the maximum height, mass, and birth year for each homeworld
+```
+```{r}
+min_max <- list(
+  min = ~min(.x, na.rm = TRUE), 
+  max = ~max(.x, na.rm = TRUE)
+) # these are the operations that we want
+starwars %>% summarise(across(where(is.numeric), min_max))
+```
+```{r}
+# Create a rescale function
+rescale01 <- function(x) {
+  rng <- range(x, na.rm = TRUE) # range takes the min and max of a vector
+  (x - rng[1]) / (rng[2] - rng[1]) # range 1 is min and range 2 is max, both components are subtracted by the minimum
+}
+# Create a sample tibble
+df <- tibble(x = 1:4, y = rnorm(4))
+df
+# this goes beyond just mean and median
+```
+

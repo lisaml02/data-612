@@ -1,0 +1,245 @@
+---
+title: "hw_06"
+author: "lisa liubovich"
+date: "2023-11-18"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(repos = c(CRAN = "https://cran.rstudio.com/"))
+```
+
+```{r}
+install.packages("tidyverse")
+install.packages("dplyr")
+library(tidyverse)
+library(dplyr)
+```
+
+# Question 1
+
+```{r}
+library(help = "nasaweather")
+```
+
+## 1.1
+
+```{r 1.1}
+str(nasaweather::atmos)
+str(nasaweather::borders)
+str(nasaweather::elev)
+str(nasaweather::glaciers)
+str(nasaweather::storms)
+```
+
+> there are 5 data frames in this data set: atmos, borders, elev, glaciers, and storms
+
+## 1.2
+
+```{r 1.2}
+names(nasaweather::atmos)
+names(nasaweather::borders)
+names(nasaweather::elev)
+names(nasaweather::glaciers)
+names(nasaweather::storms)
+```
+
+> keys in atmos: lat, long, year, month, surftemp, temp, pressure, ozone, cloudlow, cloudmid, and cloudhigh
+>
+> keys in borders: country, long, lat, and group
+>
+> keys in elev: long, lat, and elev
+>
+> keys in glaciers: id, name, lat, long, area, and country
+>
+> keys in storms: name, year, month, day, hour, lat, long, pressure, wind, type, and seasday
+
+## 1.3
+
+```{r 1.3 for atmos}
+nasaweather::atmos %>% 
+  group_by(year, month, lat, long) %>% 
+  count() %>% 
+  filter(n > 1)
+```
+
+```{r 1.3 for elev}
+nasaweather::elev %>% 
+  group_by(lat,long) %>% 
+  count() %>% 
+  filter(n > 1)
+```
+
+```{r 1.3 for glaciers}
+nasaweather::glaciers %>% 
+  group_by(id) %>% 
+  count() %>% 
+  filter(n > 1)
+```
+
+> 1.3: all of the specified keys return 0 rows when grouped, meaning that all the specified keys for each data frame are primary keys.
+
+# **Question 2**
+
+```{r}
+library(Lahman)
+help("Lahman-package")
+```
+
+## 2.1
+
+```{r 2.1}
+data(People)
+data(Batting)
+data(Pitching)
+data(Fielding)
+data(Teams)
+data(Salaries)
+```
+
+## 2.2
+
+```{r 2.2}
+left_join(People, Fielding, by = "playerID") -> People_Fielding
+
+People_Fielding1 <- People_Fielding %>% 
+  filter(teamID == "BOS", stint >= 1)
+
+left_join(People_Fielding1, Teams, by = "yearID") -> People_Fielding_Teams
+
+head(People_Fielding_Teams, n = 10)
+```
+
+```{r 2.2 continued}
+People_Fielding_Teams %>% 
+  group_by(yearID) %>% 
+  filter(teamIDBR == "BOS", LgWin == "Y", !is.na(WSWin), stint >= 1) %>% 
+  select(nameFirst, nameLast, yearID) %>% 
+  arrange(nameLast) %>% 
+  distinct() %>% 
+  head(n = 10)
+```
+
+## 2.3
+
+### a.
+
+```{r 2.3a}
+salary_data <- Salaries %>% 
+  group_by(playerID, yearID) %>% 
+  summarise(total_salary = sum(salary, na.rm = TRUE), .groups = "drop")
+
+people_data <- People
+
+salaryPlayerYear <- inner_join(salary_data, people_data, by = "playerID") %>%
+  unite(playerID, nameFirst, nameLast, sep = " ") %>% 
+  select(playerID, yearID, total_salary)
+
+nrow(salaryPlayerYear)
+```
+
+### b.
+
+```{r 2.3b}
+batting_data1 <- Batting %>% 
+  group_by(playerID, yearID) %>%
+  summarise(total_at_bats = sum(AB, na.rm = TRUE), 
+            total_hits = sum(H, na.rm = TRUE),
+            .groups = "drop")
+
+ABHitsPerPlayer <- left_join(batting_data1, people_data, by = "playerID") %>% 
+  unite(playerID, nameFirst, nameLast, sep = " ") %>%
+  select(playerID, yearID, total_at_bats, total_hits)
+
+nrow(ABHitsPerPlayer)
+```
+
+## 2.4
+
+### a.
+
+```{r 2.4a}
+extracted_batting <- ABHitsPerPlayer %>% 
+  filter(yearID >= 1985, total_at_bats >= 400) %>% 
+  group_by(playerID, yearID) %>% 
+  reframe(Hits = total_hits, AtBats = total_at_bats, 
+           battingAverage = total_hits/total_at_bats)
+
+extracted_salary <- salaryPlayerYear %>% 
+  filter(yearID >= 1985) %>% 
+  group_by(playerID, yearID) %>% 
+  summarise(totalSalary = sum(total_salary, na.rm = TRUE), .groups = "drop")
+
+ batting_salary <- inner_join(extracted_batting, extracted_salary, by = c("playerID", "yearID")) %>%
+   filter(!is.na(battingAverage & !is.na (totalSalary)))
+
+nrow(batting_salary)
+```
+
+> It's off by only 1 row, probably because the second df I made was slightly off for some reason I still have yet to figure out. I tried. Sorry.
+
+```{r}
+install.packages("ggplot2")
+library(ggplot2)
+```
+
+### b.
+
+```{r 2.4b}
+ggplot(batting_salary, aes(x = battingAverage, y = log(totalSalary))) +
+  geom_hex() +
+  xlab("Batting Average") +
+  ylab("Log of Total Salary (Natural Log)") +
+  ggtitle("Batting Average vs. Log of Total Salary") +
+  theme_classic()
+```
+
+> Interpretation: The data is highly clustered around the middle of the batting average and log of total salary. Even with this wide range of salary values, as provided by our log scale of y, there seems to be no significant association between batting average and log of total salary.
+
+### c.
+
+```{r 2.4c}
+ggplot(batting_salary, aes(x = yearID)) +
+  geom_smooth(aes(y = battingAverage), method = "lm", se = FALSE, color = "blue") +
+  geom_smooth(aes(y = log(totalSalary), method = "lm", se = FALSE), color = "red") +
+  xlab("Year") +
+  ylab("Batting Average and Log of Total Salary") +
+  ggtitle("Batting Average and Log of Total Salary Over Time") +
+  theme_classic()
+```
+
+> Interpretation: On average, holding all other factors constant, batting average seems to remain the same as time goes on. On average, holding all other factors constant, log of total salary seems to slightly increase as time goes on. Considering our log scale for salary, this means that raw salary has likely increased more dramatically than indicated by the plot. This is consistent with the conventional wisdom that inflation has affected the value of the dollar and thus the salary of professional baseball players. Batting average has stayed pretty much the same, likely because the skill requirement for professional baseball players has remained the same, at least since the mid 80s. It is so low compared to salary because batting averages only exist on a scale of 0 to 1, 1 being the best.
+
+### d. (extra credit)
+
+```{r 2.4d extra credit}
+correlation_data <- batting_salary %>%
+  group_by(yearID) %>%
+  summarize(correlation = cor(battingAverage, log(totalSalary), use = "complete.obs"))
+
+correlation_data
+```
+
+```{r 2.4 extra credit continued}
+ggplot(correlation_data, aes(x = yearID, y = correlation)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  xlab("Year") +
+  ylab("Correlation between Batting Average and Log Salary") +
+  ggtitle("Correlation between Batting Average and Log Salary by Year") +
+  theme_minimal()
+```
+
+> Interpretation: On average, holding all other factors constant, the correlation between batting average and log of total salary decreases as time goes on. That is, batting average and log of total salary move in different directions over time. This is consistent with the last plot, as log of salary increases over time whereas batting average stays constant over time. In other words, since batting average and log of salary do not move in an increasing direction together, a weak negative correlation between the two variables that gets weaker over time is consistent with our previous plot.
+
+## 2.5
+
+```{r 2.5}
+last_salaryPlayer <- inner_join(salary_data, people_data, by = "playerID") %>% 
+  filter(nameFirst == "John", yearID%%2 == 0) %>% 
+  select(yearID, nameFirst, nameLast, total_salary) %>% 
+  arrange(desc(total_salary)) %>% 
+  head(n = 10)
+last_salaryPlayer
+```

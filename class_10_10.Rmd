@@ -1,0 +1,60 @@
+---
+title: "class_10_10"
+author: "lisa liubovich"
+date: "2023-10-10"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# difference between sum() and + operator
+# sum gives us the sum of columns, not the sum of the values. but c1 + c2 is not generalizable. do rowwise (grouping by rows) before sum 
+```
+
+```{r}
+install.packages("tidyverse")
+library(tidyverse)
+install.packages("dplyr")
+library(dplyr)
+install.packages("nycflights13")
+library(nycflights13)
+```
+```{r}
+flights %>% 
+  slice(1:100) %>% 
+  rowwise() %>% # makes the code run much slower
+  mutate(total = sum(c_across(where(is.numeric))))# use rowSums instead
+```
+```{r}
+flights %>% 
+  mutate(total = rowSums(across(where(is.numeric)))) # need "across" for code to work, but generally must more efficient code than previous code chunk
+
+# across is helpful when you want to work with different columns; efficient way of coding. first argument in across is which columns you're working with. second argument is what action do you want to do on those columns. then the names of the new columns, which represent the name of the functions. 
+```
+```{r}
+mpg %>% 
+  summarise(across(c(cty, hwy), mean)) # go to the columns city and highway and give me their mean
+```
+```{r}
+mpg %>% 
+  group_by(class) %>% # sorts by the class of car
+  summarise(across(c(cty, hwy), list(mean,sd))) # creates two new columns with the mean and sd of columns cty and hwy for each kind of car. you don't have to use across but it makes your code more efficient
+```
+```{r}
+flights %>% 
+  filter(!is.na(dep_delay)) %>% 
+  group_by(origin,day) %>% 
+  summarise(across(
+    dep_delay, .fns = list("busy_day" = ~ mean(.x) + sd(.x)))) %>% 
+  ungroup() %>% 
+  ggplot(aes(day, dep_delay_busy_day, color = origin)) +
+  geom_line(size = 1)
+
+# based on the graph, the first 10 days of the month contain the peak business and the middle of the month sees the least amount of activity. 
+```
+```{r}
+```
+

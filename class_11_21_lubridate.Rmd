@@ -1,0 +1,396 @@
+---
+title: "class_11_21_lubridate"
+author: "lisa liubovich"
+date: "2023-11-21"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+install.packages("lubridate")
+library(lubridate)
+```
+
+> # **Lubridate**
+>
+> stringr deals with strings
+>
+> forcat deals with factors
+>
+> lubridate is to work with date
+>
+> what kind of classes/data objects when you're working with time? 4 diff kinds
+>
+> -   date: just for date
+>
+> -   posixct: date and time and timezone
+>
+> -   
+
+```{r}
+today() # this is date
+now() # this is posixct
+```
+
+> there is no built in R function to find the current time without the date
+>
+> use hms::ashms(now() to get the current time
+
+```{r}
+hms::as_hms(now())
+class(hms::as_hms(now())) # be careful not to mix difftime with date_time, etc --> stick to one format if possible
+```
+
+> use difftime() and as.difftime() to create time difference object
+
+```{r}
+difftime(Sys.time(), make_datetime(month = 9, year = 2001, day = 11) # this is a posixct, sys.time are posixct
+         units = "days") # creates a time object that calculates the time difference between 9/11 and now (lol why)
+```
+
+```{r}
+as.difftime(c("0:3:20", "11:23:15")) # works differently, converts vectors of strings to time and compute them based on means
+
+# if you want to find the difference of times, you need to assign this to a variable
+```
+
+```{r}
+t <- as.difftime(c("0:3:20", "11:23:15"))
+difftime1 <- t[2] - t[1]
+difftime1
+
+# this computes the difference by assinging; remember that this is basically just parsing
+```
+
+> if you want to just have the time alone, use make_datetime() and only work with the appropriate arguments
+
+## parsing dates and times
+
+> we used readr for this in the past but there was one main issue: you will run into errors if things aren't parsed in the way r expects
+
+```{r}
+x <- parse_date("10/11/2023", format = "%m/%d/%Y") # must correctly match format to avoid parsing problems
+x
+```
+
+```{r}
+class(x)
+```
+
+## parsing using lubridate
+
+> lubridate makes parsing easier relative to readr
+>
+> naming: ymd --\> y stands for year, m stands for month, d stands for day
+
+```{r}
+mdy(c("01/10/2023", "January, 1 2023")) # order of the input must match the function
+```
+
+> ms(), hm(), and hms() do not recognize dash (-) as a separator because they treat it as negative time. so here you must use parse_time.
+
+```{r}
+# hms("043450") # can't detect which number is hour, minute, second
+hms("04 34 50") # has to be separated somehow
+```
+
+```{r}
+class(ymd_hms("20231123 04 37/20"))
+```
+
+### **exercise**
+
+```{r}
+d4 <- c("August 19 (2015)", "July 1 (2015)")
+mdy(d4) # mdy matches the order of the date; much simpler than readr
+```
+
+## creating date-time values with individual components
+
+```{r}
+install.packages("nycflights13")
+library(nycflights13)
+```
+
+```{r}
+# head(flights)
+# lets recreate this using lubridate
+# flights %>% 
+  # mutate(datetime = make_datetime(year = year,
+                                 # month = month,
+                                 # day = day,
+                                  #hour = hour,
+                                 # minute = minute)) ->
+# flights
+# select(flights, datetime)
+
+
+flights %>% 
+  mutate(datetime = ymd_hm(paste(year, month, day, hour, minute))) -> flights
+select(flights, datetime)
+```
+
+> having it in this format makes them much easier to work with
+>
+> it will also make it easier to filter by date using as_date() and ymd --\> **this is important and will show up on the quiz**
+
+```{r THIS IDEA WILL BE IMPORTANT!!!!}
+flights %>% 
+  filter(as_date(datetime) == ymd("20130704")) %>% # outputs only the date of this datetime; now we can ask "are these dates equal to each other?" and filter works properly
+  ggplot(aes(x = datetime)) +
+  geom_freqpoly(binwidth = 600)
+```
+
+# **Use `as_date()` and `as_datetime()` to Coerce Objects to Dates/Times**
+
+> -   I used `as_date()` in the previous example. This function will *try* to coerce an object to a date. Sometimes successfully! It is particularly useful for extracting the date component of a `POSIXct` object.
+>
+> -   `as_datetime()` tries to coerce an object to a `POSIXct` object.
+
+### exercise
+
+> Create a date variable from the following data frame. Then filter out all rows before Feb 1, 2010. If you finish early, try to repeat by converting the month variable to a numeric representation of the month without using month_num.
+
+```{r}
+fake <- tribble(~year, ~month, ~day, ~month_num,
+                ##----/-------/----------------
+                2018,  "Oct",  1,    10,
+                2011,  "Nov",  2,    11,
+                2019,  "Dec",  3,    12,
+                2010,  "JAN",  5,     1,
+                1999,  "MAr",  1,     3,
+                1987,  "ApR",  3,     4,
+                2020,  "maY",  2,     5,
+                2010,  "May",  4,     5)
+```
+
+```{r}
+fake %>% 
+  mutate(date = ymd(paste(year, month_num, day))) %>%  # paste puts the characters in the string together, kind of like copy paste
+  filter(date > "2011/02/01")
+```
+
+```{r}
+fake %>% 
+  mutate(date = make_date(year = year, month = month_num, day = day)) %>% 
+  filter(date > "2011/02/01")
+```
+
+# **{lubridate} has Functions for Getting/Setting Components of a date-time**
+
+## **Getting or Extracting the Component of a date-time**
+
+> important functions to memorize for extracting information:
+>
+> -   `year()` extracts the year.
+>
+> -   `month()` extracts the month.
+>
+> -   `week()` extracts the week.
+>
+> -   `mday()` extracts the day of the month (1, 2, 3, ...).
+>
+> -   `wday()` extracts the day of the week (Saturday, Sunday, Monday ...).
+>
+> -   `yday()` extracts the day of the year (1, 2, 3, ...)
+>
+> -   `hour()` extracts the hour.
+>
+> -   `minute()` extract the minute.
+>
+> -   `second()` extracts the second.
+
+```{r}
+ddat <- mdy_hms("01/02/1970 03:51:44")
+ddat
+```
+
+```{r}
+year(ddat)
+```
+
+```{r}
+month(ddat, label = TRUE) # be careful about classes so that you don't run into errors; check if your classes are consistent with what you want
+```
+
+```{r}
+week(ddat)
+```
+
+```{r}
+mday(ddat)
+```
+
+```{r}
+wday(ddat, label = TRUE)
+```
+
+```{r}
+yday(ddat)
+```
+
+## **Setting the Component of a date-time**
+
+> You can use the same functions to set or overwrite components of a date-time.
+
+```{r}
+ddat <- mdy_hms("01/02/1970 03:51:44")
+ddat
+```
+
+```{r}
+year(ddat) <- 1988
+ddat
+```
+
+## **Rounding Date-Times**
+
+> You can round to the levels of individual components
+
+```{r}
+ddat <- mdy_hms("01/04/1970 03:51:44")
+ddat
+```
+
+```{r}
+round_date(ddat, unit = "year")
+```
+
+```{r}
+ round_date(ddat, unit = "month")
+```
+
+```{r}
+ round_date(ddat, unit = "day")
+```
+
+```{r}
+ round_date(ddat, unit = "hour")
+```
+
+> For rounding date-times exactly halfway between two consecutive units, the convention is to round up.
+
+```{r}
+ddat <- mdy_hms("01/04/1970 12:30:00")
+ round_date(ddat, unit = "hour")
+```
+
+```{r}
+ ddat <- mdy_hms("02/14/1970 12:00:00")
+ round_date(ddat, unit = "day")
+```
+
+```{r}
+ ddat <- mdy_hms("02/14/1970 24:00:00")
+ round_date(ddat, unit = "month")
+```
+
+# **Three Different Types of Time Spans**
+
+## **Durations - Keeping Track of Seconds**
+
+> -   A `duration` counts the exact number of seconds in a time span, between two dates.
+>
+> Durations allow exact comparisons with other durations.
+>
+> -   However, they don't always match the number of hours, months or days you might calculate.
+>
+> -   We can find out [Lady Gaga's](https://en.wikipedia.org/wiki/Lady_Gaga) "approximate" age using durations
+
+```{r}
+d1 <- ymd(19860328)
+d2 <- today()
+agesec <- as.duration(d2 - d1)
+agesec
+```
+
+> Create durations from years with `dyears()`, from days with `ddays()`, etc...
+
+```{r}
+dyears(1)
+```
+
+```{r}
+ddays(1)
+```
+
+```{r}
+dhours(1)
+```
+
+```{r}
+dminutes(1)
+```
+
+```{r}
+dseconds(1)
+```
+
+> You can add durations to date-times, but you always add *seconds*, so if there is a daylight savings change, you get weird results (add a day but the time is not the same as the time the previous day).
+
+```{r}
+one_pm <- ymd_hms("2016-03-12 13:00:00", tz = "America/New_York")
+one_pm
+```
+
+```{r}
+one_pm + ddays(1)
+```
+
+## **Periods**
+
+> Periods track the change in the human "clock time" between two date-times by ignoring actual physical time spans.
+>
+> -   Adding a `period` takes into account daylight savings.
+>
+> be careful about the functions: remember which ones are for extracting, which ones are for durations, and which ones are for periods
+
+```{r}
+one_pm
+```
+
+```{r}
+one_pm + days(1)
+```
+
+## **Intervals**
+
+> -   Intervals record time spans as a *sequence of seconds* beginning at a specified date.
+>
+> -   Intervals are like durations, but with an associated start time.
+>
+> -   Intervals and durations are good for physical processes that don't care about human clock time
+>
+> -   You can read more about intervals with
+
+```{r}
+help("Interval-class")
+```
+
+> -   Working with intervals requires some care:
+>
+>     -   **Divide an interval by a duration to determine its physical length**,
+>
+>     -   **Divide an interval by a period to determine its *implied length* in clock time**.
+
+# **Time Zones**
+
+> -   Time zones are specified using the `tz` or `tzone` arguments (for example, in the call to `ymd_hms()` above).
+>
+> -   Time zones are specified by "content/city." For example, `"America/New_York"` and `"Europe_Paris"`
+>
+> -   You can see a complete list of time zones with `OlsonNames()`.
+>
+> -   The default time zone is `UTC` (which has no daylight savings). Coordinated Universal Time \*UTC) is the successor time standard to Greenwich Mean Time (GMT) which is a specific time zone.
+>
+> -   You usually don't have to worry about timezones unless they loaded incorrectly. For example, R might think it's `UTC` even though it should be `America/New_York` and then forget daylight savings.
+>
+> -   If a date-time is labeled with the incorrect time zone, use `force_tz()`
+
+```{r}
+d1 <- ymd_hms("20140101 10:01:11")
+d1
+```

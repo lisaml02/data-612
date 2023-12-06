@@ -1,0 +1,37 @@
+---
+title: "plot_09_19"
+author: "lisa liubovich"
+date: "2023-09-19"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r loading packages}
+library(tidyverse)
+```
+
+
+```{r base R}
+data(iris)
+#view(iris) this language is case sensitive, this opens a data frame
+#str(iris) #number of obs is number of rows. factor means categorical vector
+#head(iris, 10)
+#tail(iris, 5)
+plot(iris$Sepal.Length,iris$Sepal.Width, xlab= "Sepal Length", ylab= "Sepal Width", type= "p", main= "my first plot, hooray!", col = iris$Species) #xlab and ylab is universal in R. the only thing you should give to a plot function is x. everything else is by default. quotes are needed whenever something has a name that you want to give it. you don't need quotes to assign a name to a VARIABLE. Col changes the color of the points based on the category.
+rug(iris$Sepal.Length, side=1) #adds tickmarks to the axes, can change width with lwd
+rug(iris$Sepal.Width, side=2)
+```
+
+```{r ggplot2}
+    ggplot(mpg, mapping = aes(x = displ, y = hwy)) + ## map data to aesthetics 
+      geom_point() +                                 ## apply aesthetics to 
+                                                     ##   point objects
+      geom_smooth(se = TRUE, method = loess) +      ## add smoothing objects
+      geom_rug() +                                   ## add rug objects
+      xlab("Displacement") +
+      ylab("Highway")
+```
+

@@ -1,0 +1,120 @@
+---
+title: "class 9_29_dyplr"
+author: "lisa liubovich"
+date: "2023-09-29"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+install.packages("tidyverse")
+library(tidyverse)
+install.packages("dyplr")
+library(dplyr)
+install.packages("nycflights13")
+library(nycflights13)
+```
+```{r}
+View(flights)
+names(flights) #gives all the names of the columns
+flights %>% 
+  filter(dest %in% c("IAH", "HOU"), 
+         carrier %in% c("AA", "UA", "DL"),
+         month %in% 7:9,
+         arr_delay > 15,
+         dep_delay <= 0) 
+#%in% operator works like or, like in for loops. 
+
+#Notes:# slice gives you a slice of rows, ex: slice(10:20) means give me a slice starting from row 10 to 20.
+# slice_head means give me the first row. result is a tibble (dataframe thats computationally easier for r). # its preferable to convert multiplication to summation because it has less error, example: if you want to take log(ab), convert ab= exp(log(ab)) to ab = exp(log(a) + log(b). do this unless you're working with very large numbers.
+# remember some key properties of logs. log(u)^n=nlog(u).
+
+```
+
+ 
+```{r}
+# sometimes you want samples of these rows
+flights %>% 
+  slice_sample(n= 200)
+# dbl stands for double. double and integer are both numerical. chr stand for character.
+```
+```{r}
+nrow(flights) # finds number of rows. VERY IMPORTANT!!!!
+# other important functions: summary(), head() finds first line, str() aka structure
+
+```
+```{r}
+flights %>% 
+  filter(!is.na(arr_delay)) %>%  # this line just gets rid of missing values in this variable
+  slice_min(arr_delay, n = 5)# for slice_max() or slice_min(), make sure to specify the variable. these functions select rows with highest or lowest values of a variable. # this line gives us the least 5 rows for arrival delay. 
+```
+ 
+```{r}
+flights %>% 
+  arrange(dep_delay) # changes the order of rows. default is to arrange in ascending order. this line means change order based on departure delay in ascending order. use desc() function on the variable inside arrange() to arrange in descending order.
+
+# df %>% arrange (c2) creates a tibble where the rows are arranged in ascending order based on the values of c2. 
+
+#df %>% arrange(c2,c3) does the same thing except based on equalities in c2. if there are equalities, the remaining rows are arranged in ascending order based on c3 BUT it only ouptuts the don't have equalities in c2....?
+```
+ 
+```{r}
+set.seed(10)
+flights %>% 
+  slice_sample(n = 20) %>% 
+  arrange(dest, origin)
+```
+```{r}
+flights %>% 
+  select(year:carrier) # give me these specific columns
+```
+ 
+```{r}
+flights %>% 
+  slecect(-(year:day)) # give me everything BUT these specific columns 
+
+#select(flights, 13:14) calls out columns by index
+```
+ 
+```{r}
+flights %>% 
+  select(starts_with("dep"), year, month, day) # gives me all columns that starts with dep as well as year, month, and day columns
+```
+```{r}
+flights %>% 
+  select(year:day, contains("arr_")) # gives all columns in year thru day as well as any columns that have arr_ in them
+# adding an exclamation point means everything BUT these columns 
+```
+```{r}
+flights %>% 
+  mutate(gain = dep_delay - arr_delay,
+         speed = distance / air_time * 60) %>% 
+  select(year:day, gain, speed) %>% 
+  head()
+# mutate creates new variables from old and adds a column to our demporary dataframe. by default, the new column is added after the old columns but you can change that with .before or .after if you want 
+```
+```{r}
+flights %>% 
+  transmute(gain = dep_delay - arr_delay,
+            hours = air_time / 60,
+            gain_per_hour = gain / hours) %>% 
+  head()
+# transmute only keeps new variables and droppes all the others
+```
+```{r}
+flights %>% 
+  relocate(origin:dest) # by default, it relocates columns origin thru dest to the beginning of the tibble. you can specify .before and .after if you want.
+```
+```{r exercise 9.0.1}
+flights %>% 
+  relocate(ends_with("time"), .before = flight) %>% 
+  relocate(starts_with("sched"), .before = dep_time)
+# keep the commands separate in this case because they do different things. quotes are needed because we are not referring to a variable, we are reffering to a name. this code moves the columns that end with the word "time" to be before flight and the columns that start with "sched" to be vefore dep_time
+
+#ggplot and dyplr are the most important part of the course
+```
+ 
+ 

@@ -1,0 +1,183 @@
+---
+title: "hw_03"
+author: "lisa liubovich"
+date: "2023-10-02"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+**Question 1**
+
+```{r}
+options(repos = "https://cran.r-project.org")
+install.packages("tidyverse")
+library(tidyverse)
+install.packages("ggplot2")
+library(ggplot2)
+data(msleep)
+install.packages("ggthemes")
+library(ggthemes)
+```
+
+**Question 2**
+
+```{r}
+nrow(msleep)
+ncol(msleep)
+
+```
+
+> There are 83 mammals and 11 variables in the msleep data frame.
+
+**Question 3**
+
+| Does change in body weight explain change in total sleep time?
+| Explanatory variable: body weight, (numerical, continuous)
+
+```{r}
+ggplot(msleep, mapping = aes(x = bodywt, y = sleep_total)) +
+  geom_point() +
+  geom_smooth(se = TRUE, method = loess) +
+  xlab("Body Weight") +
+  ylab("Total Sleep Time") +
+  ggtitle("Body Weight vs Total Sleep Time")
+```
+
+> While perhaps there is some kind of a trend to the data, the shape of the plot indicates that there is no correlation between total sleep time and body weight.
+
+**Question 4**
+
+> a\.
+
+```{r plot 1}
+ggplot(msleep, mapping = aes(x = log(bodywt), y = sleep_total)) +
+  geom_point() +
+  geom_smooth(se = TRUE, method = loess) +
+  xlab("Log of Body Weight") +
+  ylab("Total Sleep Time") +
+  ggtitle("Log of Body Weight vs Total Sleep Time")
+```
+
+```{r plot 2}
+ggplot(msleep, mapping = aes(x = bodywt, y = log(sleep_total))) +
+  geom_point() +
+  geom_smooth(se = TRUE, method = loess) +
+  xlab("Body Weight") +
+  ylab("Log of Total Sleep Time") +
+  ggtitle("Body Weight vs Log of Total Sleep Time")
+```
+
+```{r plot 3}
+ggplot(msleep, mapping = aes(x = log(bodywt), y = log(sleep_total))) +
+  geom_point() +
+  geom_smooth(se = TRUE, method = loess) +
+  xlab("Log of Body Weight") +
+  ylab("Log of Total Sleep Time") +
+  ggtitle("Body Weight vs Log of Total Sleep Time")
+```
+
+> b\. I would say that plot one is the most linear because it appears to be the closest to a straight line while plots 2 and 3 have almost parabola-like shapes.
+
+> c\.
+
+```{r}
+ggplot(msleep, mapping = aes(x = bodywt, y = sleep_total)) +
+  geom_point() +
+  geom_smooth(se = TRUE, method = loess) +
+  scale_x_log10() +
+  xlab("Body Weight") +
+  ylab("Total Sleep Time") +
+  ggtitle("Body Weight vs. Total Sleep Time")
+```
+
+> d.  This plot is exactly the same in shape as my best plot (plot 1). The main difference here is the scale; my best plot's x-axis represents the logarithm of body weight while the new plot's x-axis represents powers of 10 of body weight.
+
+**Question 5**
+
+```{r}
+ggplot(msleep, mapping = aes(x = log(bodywt), y = sleep_total, color = vore)) +
+  geom_point() +
+  geom_smooth(se = TRUE, method = loess, color = "black") +
+  xlab("Log of Body Weight (ln(kg)") +
+  ylab("Total Sleep Time (hours)") +
+  ggtitle("Log of Body Weight vs. Total Sleep Time, colored by diet") +
+  theme_bw()
+```
+
+**Question 6**
+
+```{r}
+ggplot(msleep, mapping = aes(x = log(bodywt), y = sleep_total, color = vore)) +
+  geom_point() +
+  geom_smooth(se = FALSE, method = lm) +
+  xlab("Log of Body Weight (ln(kg)") +
+  ylab("Total Sleep Time (hours)") +
+  ggtitle("Log of Body Weight vs. Total Sleep Time, colored by diet") +
+  theme_bw() +
+  facet_wrap(~ vore)
+```
+
+> The effect of body weight on sleep total appears to be larger for herbivores and carnivores compared to insectivores, omnivores, and mammals with unspecified diets.
+
+**Question 7**
+
+```{r}
+ggplot(msleep, mapping = aes(x = log(bodywt), y = sleep_total, color = vore)) +
+  geom_point() +
+  geom_smooth(se = FALSE, method = lm, color = "black", linetype = "dashed", size = 0.5) +
+  xlab("Log of Body Weight (ln(kg)") +
+  ylab("Total Sleep Time (hours)") +
+  ggtitle("Log of Body Weight vs. Total Sleep Time, colored by diet") +
+  theme_bw()
+```
+
+> This line shows a stronger negative relationship between body weight and total sleep time for omnivorous, insectivorous, and unspecificied diets, but a weaker negative relationship between body weight and total sleep time for carnivorous and herbivorous diets.
+
+**Question 8**
+
+```{r}
+ggplot(msleep, mapping = aes(x = log(bodywt), y = sleep_total, color = vore)) +
+  geom_point() +
+  geom_smooth(se = FALSE, method = lm, color = "black", linetype = "dashed", size = 0.5) +
+  xlab("Log of Body Weight (ln(kg)") +
+  ylab("Total Sleep Time (hours)") +
+  ggtitle("Log of Body Weight vs. Total Sleep Time, colored by diet") +
+  theme_bw() +
+  guides(color = guide_legend(title = "Diets"))
+```
+
+**Question 9**
+
+```{r}
+ggplot(msleep, mapping = aes(x = vore, y = sleep_total, fill = vore, color = vore)) +
+  geom_boxplot(outlier.shape = 17, color = "gray20") +
+  scale_y_log10() +
+  xlab("Diet") +
+  ylab("Sleep Total") +
+  scale_fill_colorblind() +
+  theme_bw() +
+  theme(
+    legend.position = "none"
+    )
+```
+
+**Question 10**
+
+```{r}
+ggplot(msleep, mapping = aes (x = bodywt, y = sleep_total, fill = "black")) +
+  geom_point() +
+  geom_smooth(se = FALSE, method = lm, color = "darkgreen") +
+  xlab("Body Weight") +
+  ylab("Sleep Total") +
+  scale_x_log10() +
+  scale_y_log10() +
+  theme_bw() +
+  ggtitle("Log(Sleep Total) vs Log(Body Weight)") +
+  facet_wrap(~ vore) +
+  theme(
+    legend.position = "none"
+  )
+```

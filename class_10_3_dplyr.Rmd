@@ -1,0 +1,158 @@
+---
+title: "class_10_3_dplyr"
+author: "lisa liubovich"
+date: "2023-10-03"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+install.packages("tidyverse")
+library(tidyverse)
+install.packages("dplyr")
+library(dplyr)
+install.packages("nycflights13")
+library(nycflights13)
+install.packages("ggplot2")
+library(ggplot2)
+```
+```{r}
+flights %>%
+  summarize(mean_del = mean(dep_delay, na.rm = TRUE)) #output is mean, with missing values removed
+```
+```{r}
+flights %>%
+  summarize(mean_depdel = mean(dep_delay, na.rm = TRUE),
+            mean_arrdel = mean(arr_delay, na.rm = TRUE),
+            n()) # this function simply ignores missing values
+```
+
+```{r}
+flights %>%
+  filter(!is.na(dep_delay), !is.na(arr_delay)) %>%
+  summarize(mean_depdel = mean(dep_delay),
+            mean_arrdel = mean(arr_delay),
+            n()) # this function throws away missing values
+```
+
+```{r}
+# group_by helps shorten code into a neater, single code chunk when using summarize()
+flights %>%
+  group_by(origin) %>% # three groups, each are an origin; everything done after group by is going to be done for each group
+  summarize(sd_del = sd(dep_delay, na.rm = TRUE), # then this creates the next two columns for each group
+            mean_del = mean(dep_delay, na.rm = TRUE))
+flights %>%
+  group_by(origin) %>%
+  summarize(sd_del = sd(dep_delay, na.rm = TRUE),
+            mean_del = mean(dep_delay, na.rm = TRUE),
+            .groups = "drop_last")
+
+ flights %>%
+  group_by(origin, dest) %>%
+  summarize(sd_del = sd(dep_delay, na.rm = TRUE),
+            mean_del = mean(dep_delay, na.rm = TRUE),
+            .groups = "drop") # once you're done with your grouping, you can drop the group operation
+```
+
+```{r}
+length(unique(flights$origin)) # how many groups are there in the origin? the output is 3, meaning there are three groups
+levels(as.factor(flights$origin)) # outputs names of groups
+```
+
+```{r}
+# length(unique(flights$hour)) # there are 20 groups in hour
+flights %>%
+  group_by(origin, hour) %>% # groups by origin and hour; helps understand the busiest time for an airport
+  summarize(sd_del = sd(dep_delay, na.rm = TRUE),
+            mean_del = mean(dep_delay, na.rm = TRUE))
+
+```
+```{r}
+flights %>%
+  group_by(origin, hour) %>%
+  summarize(sd_del = sd(dep_delay, na.rm = TRUE),
+            mean_del = mean(dep_delay, na.rm = TRUE)) ->
+  sumdf
+```
+
+```{r}
+ggplot(data = sumdf, mapping = aes(x = hour, y = mean_del, col = origin)) +
+  geom_line() +
+  theme_bw() +
+  xlab("Hour") +
+  ylab("Mean Delay Time") +
+  scale_color_discrete(name = "Origin")
+```
+
+```{r}
+# length(unique(flights$day)) 31 days in the data frame
+flights %>%
+  group_by(day) %>% 
+  arrange(dep_delay, .by_group = TRUE) %>%
+  slice(1:5, 20000:20005) # 31 x 5 = 155 (number of rows); should be 160 but arrange() removes the missing 5 missing values in departure delay
+```
+
+```{r}
+flights %>% 
+  mutate(is_cancelled = is.na(dep_delay) | is.na(arr_delay)) %>% # defining new logical column
+  group_by(day) %>%  # 31 days, so 31 groups
+  summarize(prop_canc = mean(is_cancelled), # works on logical vector; calculates proportion of cancelled flights; number of TRUEs divided by the length (true=1, false=0)
+            tot_canc = sum(is_cancelled), # works on logical vector; calculates total number of cancelled flights
+            n = n(), # counts number of observational units in each group; number of flights in each row
+            ave_delay = mean(dep_delay, na.rm = TRUE))  ->
+  sumdat
+str(sumdat)
+```
+```{r}
+data(starwars)
+head(starwars)
+  
+```
+```{r}
+df <- tibble(x = 1:2, y = 3:4, z = 5:6)
+df
+
+
+# we are working with three different columns simultaneously to compute the average of the three numbers for each row
+# rowwise() is another type of grouping by rows
+```
+
+```{r}
+df <- tibble(name = c("Mara", "Hadley"), x = 1:2, y = 3:4, z = 5:6)
+
+df %>% mutate(m = mean(c(x, y, z))) 
+
+# mean across all values all rows
+
+df %>% 
+  rowwise(name) %>% 
+  summarise(m = mean(c(x, y, z)), .groups = "drop")
+
+# you can ungroup
+df %>% rowwise() %>% ungroup() %>% str()
+```
+
+```{r}
+# We can combine rowwise() and summarize() to make it easy to summarize values across columns within one row.
+
+df <- tibble(id = 1:6, w = 10:15, x = 20:25, y = 30:35, z = 40:45)
+df # create dataset
+
+# Let’s say we want compute the sum of w, x, y, and z for each row. We start by making a row-wise data frame: We then use mutate() to add a new column to each row, or. just use summarise() to return the summary:
+
+rf <- df %>% rowwise(id)
+# mutate to add new column for each row
+rf %>% mutate(total = sum(c(w, x, y, z)))
+
+# summarize without mutate
+rf %>% summarise(total = sum(c(w, x, y, z)), .groups= "drop")
+
+rf %>% mutate(total = sum(c_across(w:z))) # c_across() working with different columns simultaneously; If you have a lot of variables, you can use c_across() to succinctly select many variables (c_across() uses tidy select helpers) 
+
+rf %>% mutate(total = sum(c_across(where(is.numeric)))) #  ensures we only select numeric columns; this line sums the different columns but numerical columns (where numeric columns = TRUE)
+
+```
+

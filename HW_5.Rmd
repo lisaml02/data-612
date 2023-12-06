@@ -1,0 +1,111 @@
+---
+title: "hw_05"
+author: "lisa liubovich"
+date: "2023-10-24"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(repos = c(CRAN = "https://cran.r-project.org"))
+```
+
+```{r}
+install.packages("tidyverse")
+library(tidyverse)
+install.packages("dplyr")
+library(dplyr)
+```
+
+## **Question 1**
+
+```{r importing into environment}
+billboard <- read.csv(file = "../data/billboard.csv")
+print(billboard)
+```
+
+```{r checking imported data}
+# counting the number of NAs
+billboard %>%
+  summarise(across(everything(), ~ sum(is.na(.))))
+# checking for duplicate rows
+billboard %>% 
+  summarize(dist = nrow(distinct(.)))
+```
+
+> **1.a.**
+
+```{r 1a: reshaping dataframe}
+pivot_longer(
+  data = billboard,
+  cols = starts_with("wk"),
+  names_to = "Week",
+  values_to = "Rating"
+)
+```
+
+> **1.b.**
+
+```{r 1b: repeat a with added arguments}
+billboard_1 <- pivot_longer(
+  data = billboard,
+  cols = starts_with("wk"),
+  names_to = "Week",
+  names_prefix = "wk",
+  names_transform = list(Week = as.double),
+  values_to = "Rating",
+  values_drop_na = TRUE
+)
+
+billboard_1
+```
+
+> **1.c.**
+
+```{r 1c: sorted billboard_1}
+billboard_1 %>% 
+  arrange(artist, track, Week)
+```
+
+```{r 1c: using glimpse}
+glimpse(billboard_1)
+```
+
+> There are 5,307 rows in this data frame.
+
+## **Question 2**
+
+```{r}
+install.packages("ggplot2")
+library(ggplot2)
+```
+
+```{r 2: import iris dataset}
+iris_data <- read.csv(file = "../data/iris.csv")
+
+iris_data
+```
+
+```{r 2: tidy iris dataset}
+iris_data_tidy <- iris_data %>% 
+  rename(sepal_length = X5.1, sepal_width = X3.5, petal_length = X1.4, petal_width = X0.2, species = Iris.setosa)
+
+
+iris_data_tidy <- iris_data_tidy %>%
+  pivot_longer(
+    cols = starts_with(c("sepal", "petal")),
+    names_to = c("Part", "Measurement"),
+    names_sep = "_",
+    values_to = "Value"
+  )
+iris_data_tidy
+```
+
+```{r 2: plot}
+ggplot(iris_data_tidy, aes(x = species, y = Value)) +
+  geom_boxplot() +
+  facet_grid(Part ~ Measurement) +
+  xlab("species") +
+  ylab("value") +
+  theme_bw()
+```

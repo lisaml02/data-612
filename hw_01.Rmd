@@ -1,0 +1,108 @@
+---
+title: "HW_01"
+author: "lisa liubovich"
+date: "2023-09-10"
+output:
+  pdf_document:
+    latex_engine: pdflatex
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```{r}
+#1
+sequence <- seq(36, 333, by= 1)
+x <- sequence[sequence %% 3 == 0]
+total_sum <- sum(x)
+print(total_sum)
+```
+
+```{r}
+#2
+y <- seq(from= 36, to= 333, length.out= 100)
+total_sum_2 <-sum(y)
+print(total_sum_2)
+```
+```{r}
+#3
+set.seed(123)
+matrix1 <- matrix(rnorm(9), nrow= 3, ncol= 3)
+matrix2 <- matrix(rnorm(9), nrow= 3, ncol= 3)
+A <- matrix1
+B <- matrix2
+C <- ifelse(A >= B, 1, 0)
+print(C)
+
+```
+```{r}
+#4
+element_39 <- x[39]
+element_69 <- x[69]
+print(element_39)
+print(element_69)
+
+```
+```{r}
+#5
+new_vector <- c(x,y)
+new_vector_length <- length(new_vector)
+print(new_vector_length)
+```
+
+```{r}
+#6
+log_sum <- sum(log10(x))
+print(log_sum)
+```
+```{r}
+#7
+numbers_vector <- c(1, 2, 3)
+characters_vector <- c("alpha", "beta", "charlie")
+my_dataframe <-data.frame(Numbers= numbers_vector, Characters= characters_vector)
+sum_of_numbers <-sum(my_dataframe$Numbers)
+print(sum_of_numbers)
+```
+```{r}
+#8
+library(dplyr)
+df <- data.frame(
+  Name = c("John", "Alice", "Andrew", "Sarah", "Alex"),
+  Age = c(25, 30, 28, 22, 32),
+  Annual_Income = c(50000, 60000, 55000, 48000, 70000),
+  Account_Balance = c(1500.25, 2000.75, 1800.50, 900.30, 2500.90)
+)
+
+mean_annual_income <- mean(df$Annual_Income[df$Age > 27])
+age_median <- median(df$Age[df$Account_Balance > 1500])
+names_above_balance <-df$Name[df$Account_Balance > 1500]
+
+print(mean_annual_income)
+print(age_median)
+print(names_above_balance)
+```
+# 9. Quatro is a document format and exosystem similar to R Markdown with some key differences. Quatro supports multuple programming languages, making it more versatile. Quatro also offers features for online rendering, version control, and collaborative editing. It places greater emphasis on interactive content and allows for customization of document appearance and behavior. 
+#. 10. Latex is a typsetting system used for creating high-quality documents, particularly in academic and publishing settings. It allows users to define the structure/formatting of documents using plain text with markup commands. Overlead is a collaborative online platform for Latex document creation and editing. It provides a web-based interfact where multiple users can work on the same doc at the same time. It is used in place of local Latex installations and streamlines the procuses of producing professional-looking docs. 
+

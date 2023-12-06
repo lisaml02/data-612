@@ -1,0 +1,710 @@
+---
+title: "functions masterlist"
+author: "lisa liubovich"
+date: "2023-10-03"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+install.packages("tidyverse")
+library(tidyverse)
+install.packages("dplyr")
+library(dplyr)
+install.packages("ggplot2")
+library(ggplot2)
+install.packages("ggthemes")
+library(ggthemes)
+install.packages("lattice")
+library(lattice)
+install.packages("dbplyr")
+library(dbplyr)
+```
+
+# **Base R Functions**
+
+```{r}
+data.frame() # create dataframe
+col() # column indexes
+cos() # trigonometric cosine function
+log() # takes log of a number
+help() # list all possible arguments of a function
+install.packages() # install a package
+library() # loads a package's library
+sum() # sum input
+data() # load data
+View() # view the data in table form
+str() # look at the structure of a dataframe
+names() # takes a dataframe as input and outputs a vector comprised of that dataframe’s column names
+head() # look at beginning rows of a dataframe
+tail() # look at ending rows of a datframe
+sqrt() # take square root of input
+exp() # computes the exponential function
+rnorm() # simulates random variates having a specified normal distribution
+abs() # takes the absolute value of the input
+set.seed() # creates reproducable results by creating variables that take on random values
+mean() # computes arithmetic mean
+sort() # sorts a vector or factor in descending or ascending order. default is ascending order.
+diff() # returns lagged and iterated differences
+round() # rounds values in first argument to specified number of decimal places (Default is 0).
+subset() # returns subset of vectors or factors that meet certain conditions
+cor() # computes correlation of vectors or columns in a matrix
+function() # allows user to define a new function
+return() # explicitly identifies the source of a potential early return value
+max() # returns maximum of input values
+min() # returns minimum of input values
+range() # returns a vector of minimum and maximum values in the input
+if(){} else {} # conditional; if input satisfies condition, do an action. if input does not satisfy condition, do not do the action.
+any() or all() # collapse a logical vector into a single value
+identical() # test for equality
+switch() # evaluates an expression by defining each of the multiple choices and it uses with the first one that is true
+stop() # stops execution of current expression
+length() # length of an object
+t.test() # performs a student t test
+stopifnot() # checks if each argument is true and issues a generic error message if there is a problem
+is.na() # indicates which elements are missing
+sample() # takes a sample of specified size x, with or without replacement
+c() # stands for 'combine'; get the output by giving parameters inside the function
+floor() # returns the largest integer that is smaller than or equal to value passed to it as argument
+ceiling() # returns the smallest integer that is greater than or equal to the value passed to it as argument
+is.numeric() # returns a logical value, TRUE or FALSE , indicating if the argument passed to it has a base type of the class double or integer and the values are regarded as numeric
+is.vector() # used to return TRUE if the given vector is of the specified mode having no attributes other than names
+seq() # creates a sequence of numbers
+factor() # If a variable is being treated as continuous rather than categorical, you need to enclose that variable in a factor() function call
+nrow() # returns number of rows in a dataframe
+ncol() # returns number of columns in a dataframe
+print() # prints argument and returns it invisibly
+aggregate() # splits data into subset and calculates summary stats
+rowSums() # form row sums for numeric arrays or data frames; often faster than using rowwise()
+rowMeans() # form row means for numeric arrays or data frames; often faster than using rowwise()
+getwd() # returns an absolute path representing the current working directory
+setwd(dir) # sets the working directory to dir; never use in an .Rmd or .R file
+read.csv() # reads a file in csv format and creates a data frame from it, with cases corresponding to lines and variables to fields in the file; slower and less accurate than readr
+unique() # extracts unique elements; returns a vector, data frame, or arry like x but with duplicate elemnts/rows removed
+readRDS() # serialization interface for single objects; functions to write a single R object to a file, and to restore it
+saveRDS() # restore file under a different name
+table() # provides number of observations within each group
+prop.table() # provides numerical proportion of observations within each group
+writeLines() # writes text lines to a connection
+```
+
+### **Base R Graphics Functions**
+
+```{r}
+plot() # makes plots
+lines() # adds lines to an already made plot
+par() # change plotting options
+boxplot() # makes a boxplot
+hist() # makes a histogram
+text() # Adds text to an already-made plot.
+legend() # Adds a legend to an already-made plot.
+mosaicplot() # Makes a mosaic plot.
+barplot() # Makes a bar plot.
+jitter() # Adds a small value to data (so points don’t overlap on a plot).
+rug() # Adds a rugplot (tickmarks) to an already-made plot.
+polygon() # Adds a shape to an already-made plot.
+points() # Adds a scatterplot to an already-made plot.
+mtext() # Adds text on the edges of an already-made plot
+table() # builds frequency and two way tables
+density() # calculates the density
+loess() # calculates a smooth line
+predict() # predicts new values based on the model
+main() # controls the title of a graphic
+col() # controls the color of the lines/points/areaS
+cex() # controls the size of the points
+pch() # type of point (circle, dot, triangle, etc)
+lwd() # line width
+lty() # line type
+polygon() # used to plot a polygon between specified points in an existing plot
+pdf() # opens a connection to a new pdf file
+dev.off() # closes the connection to new file
+```
+
+## **ggplot2 Functions**
+
+```{r}
+ggplot() # creates a new plot
+geom_point() # creates a scatter plot
+geom_boxplot() # creates a boxplot
+geom_histogram() # creates a histogram
+geom_line() # creates a line graph
+geom_density() # creates a density plot
+geom_bar() # calculates frequency and then creates a bar plot
+geom_smooth() # creates a smooth line to a cloud of points and plots the output
+I() # make all points the same shape/size/color by enclosing shape/size/color using this function
+geom_rug() # creates a rug plot in the margins
+annotate() # creates an annotation layer
+scale_x_log10() # plot x on log10 scale
+scale_y_log10() # plot y on log10 scale
+# in general, scales control how a plot maps data values to the visual values of an aesthetic.
+scale_color_discrete() # change legend name or labels, limits, and the hue values used; can be continuous too
+facet_grid() # layes out panels of plots into a grid; most useful with two categorical variables
+facet_wrap() # creates a sequence of panels and wraps them around into a rectangle; used with one categorical variable
+aes() # constructs aesthetic mappings
+last_plot() # returns the last plot
+theme_bw() # sets black and white theme; this is one of many themes ggplot2 has
+scale_fill_colorblind() # sets fill aesthetic to colorblind friendly colors; works with color too
+ggtitle() # creates title above plot
+ggsave() # saves plot
+```
+
+### **useful qplot arguments (note: qplot was deprecated in R 3.4.3)**
+
+> data() : Specify the dataframe that all variables belong to
+>
+> main() : This controls the title
+>
+> xlab(), ylab() : These control the x and y axis labels
+>
+> color : Controls the color of the lines/points.
+>
+> fill : Controls the color of areas (e.g. for histograms)
+>
+> size: Controls the size of points
+>
+> shape : The shape of points ("circle", "square", "triangle", etc. . . )
+>
+> alpha : Controls the level of transparency of points/lines/fills
+>
+> lwd : line width
+>
+> lty : Line type ("solid", "dashed", "dotted", etc. . . )
+>
+> facets() : Split up the data into multiple plots
+
+## **lattice functions**
+
+```{r}
+xyplot() # draws scatterplot;for two variables, continuous x and y
+densityplot() # draws density plots; for one variable
+histogram() # draws a histogram; for one variable
+barchart() # draws a barchart; for one discrete variable
+panel.xyplot() # layers scatterplot into one plot
+panel.rug() # layers rugplot into one plot
+panel.loess() # layers loess into one plot
+bwplot() # draws a boxplot for two variables, discrete x and continuous y
+xyplot(type="l") # draws a line plot for a continuous function
+```
+
+# dplyr package functions
+
+## **regular dplyr functions**
+
+```{r}
+tibble() # creates a tibble
+tribble() # creates a small tibble
+select() # selecting specific variables; helper functions listed below
+  starts_with("abc") # matches names that begin with "abc".
+  ends_with("xyz") # matches names that end with "xyz"
+  contains("ijk") # matches names that contain "ijk"
+  matches("(.)\\1") # selects variables that match a regular expression   (REGEX)
+  num_range("x", 1:3) # matches x1, x2, and x3 for whatever numerical    sequence you provide
+filter() # Choosing rows (observational units) based on the values of their attributes
+mutate() # Creating new variables or modify existing variables (columns)
+arrange() # reordering rows; default is in ascending order
+  desc() # organize variables in descending order
+summarize() # Creating summary statistics across many observational units (rows)
+group_by() # Grouping the rows (observational units)) by the values of one or more variables (columns)
+  n() # count number of observational units in each groups
+slice() # chooses rows based on location
+  slice_head() # selects the first rows
+  slice_tail() # selects the last rows
+  slice_sample() # randomly selects rows
+  slice_min() # select rows with lowest values of a variable
+  slice_max() # select rows with highest values of a variable
+rename() # changes name of columns
+relocate() # changes the order of the columns; can add .before or .after, but default is to put it left most
+transmute() # only keep new variables and drop old variables
+ungroup() # remove a grouping
+rowwise() # allows you to compute on a data frame a row-at-a-time
+c_across() # succinctly select many variables while using rowwise; for a logical vector, c_across() finds where the output contains true and creates a column of trues
+across() # applies the same operation to multiple columns; more efficient; only used inside other functions
+count() # allows you to quickly count the unique values of one or more variables
+distinct() # keeps only unique/distinct rows from a data frame
+case_when(...) # allows you to vectorize and replace multiple if_else() statements in a clear and succinct way; ... are a placeholder for a series of two-sided formulas; particularly useful inside mutate
+has_rownames() # detects if a data frame has row_names
+rownames_to_columns() # converts row names to a variable
+as_tibble() # converts a data frame to a tibble
+```
+
+### **mutating joins**
+
+> Mutating joins add columns from `y` to `x`, matching observations based on the keys. There are four mutating joins: the inner join, and the three outer joins.
+
+```{r}
+left_join() # type of outer join that returns all rows from x, and all columns from x and y; rows in x with no match in y are returned but will have NA values in the new columns; if there are multiple matches between x and y, all combinations of the matches are returned
+right_join() # type of outer join that returns all rows from y, and all columns from x and y; rows in y with no match in x will have NA values in the new columns; if there are multiple matches between x and y, all combinations of the matches are returned
+full_join() # type of outer join that returns all rows and all columns from both x and y; where there are not matching values, returns NA for the missing values
+inner_join() # returns all rows from x where there are matching values in y, and all columns from x and y; if there are multiple matches between x and y, all combination of the matches are returned; rows that do not match are not returned
+```
+
+### **filtering joins**
+
+> Filtering joins filter rows from x based on the presence or absence of matches in y; They do not add columns; they just filter the rows of x based on values in y.
+
+```{r}
+semi_join() # returns all rows from x where there are matching key values in y, keeping just columns from x; filters out rows in x that do not match anything in y; NOT the same thing as an inner join, because a semi-join will never duplicate rows of x while an inner join can potentially do so
+anti-join() # returns all rows from x where there are not matching key values in y, keeping just columns from x; filters out rows in x that do match anything in y (the rows with no join)
+```
+
+### **nesting joins**
+
+> nesting joins create a list column of data.frames, where each element contains the rows from y that match the corresponding row in x
+>
+> nest_join() is the most fundamental join since you can recreate the other joins from it.
+>
+> -   An `inner_join()` is a `nest_join()` plus an `tidyr::unnest()`,
+>
+> -   A `left_join()` is a `nest_join()` plus an `unnest(.drop = FALSE)`.
+>
+> -   A `semi_join()` is a `nest_join()` plus a `filter()` to ensure every element of data has at least one row,
+>
+> -   An `anti_join()` is a `nest_join()` plus a `filter()` to ensure every element of data has zero rows.
+
+```{r}
+nest_join() # return all rows and all columns from x; adds a list column of tibbles where each tibble contains all the rows from y that match that row of x; when there is no match, the list column is a 0-row tibble with the same column names and types as y
+```
+
+## **dbplyr functions**
+
+```{r}
+dbConnect() # open a connection to a database
+dbListTables() # list the data frames available in the connection to the database
+tbl() # create reference names (variables) for the tables; create a table from a data source
+collect() # force computation of a database query; convert desired observations/variables into a data frame in memory
+```
+
+### **commonly used back ends**
+
+> -   **RSQLite** embeds a SQLite database.
+>
+> -   **RMariaDB** connects to MySQL and MariaDB
+>
+> -   **RPostgres** connects to Postgres and Redshift.
+>
+> -   **odbc** connects to many commercial databases via the *open database connectivity protocol* (ODBC).
+>
+> -   **bigrquery** connects to Google's BigQuery.
+
+# **tidyverse packages**
+
+## **readr package functions**
+
+### **functions for reading into r**
+
+```{r}
+read_csv() # reads csv file into a tibble; faster and more accurate than base r ; csv is a type of delimited file
+  read_csv2() # like read_csv() but for when the columns are separated by semicolons
+read_tsv() # read tab separated values (tsv) file into a tibble; tsv is a type of delimited file
+read_delim() # reads general delimited files into a tibble
+read_fwf() # reads fixed width file into a tibble
+read_table() # read the type of textual data where each column is separated by one or more columns of space into a tibble
+read_log() # reads common/combined log file into a tibble
+read_lines() # read/write lines to/from a file; reads up to n_max lines from a file; helps to see how the values are separated in a file
+```
+
+### **readr function arguments**
+
+> -   file : either a path to a file, a connection, or literal data (either in a single string or raw vector)
+>
+> -   delim : single character used to separate fields within a recrod
+>
+> -   quote: single character used to quote strings
+>
+> -   escape_backslash: does the file use backslashes to escape special characters?
+>
+> -   escape_double: does the file escape quotes by doubling them?
+>
+>     -   ex: if this option is TRUE, the value " " " " represents a single quote, \\"
+>
+> -   col_names: either TRUE, FALSE, or a character vector of column names
+>
+>     -   if TRUE, the first row of the input will be used as the column names and will not be included in the data frame
+>
+>     -   If FALSE, the column names will be generated automatically
+>
+>     -   if a character vector, the values will be used as the names of the columns, and the first row of the input will be read into the first row of the output data frame
+>
+> -   col_types: can use to explicitly specify column types
+>
+>     -   c = character
+>
+>     -   i = integer
+>
+>     -   n = number
+>
+>     -   d = double
+>
+>     -   l = logical
+>
+>     -   f = factor
+>
+>     -   D = date
+>
+>     -   T = date time
+>
+>     -   t = time
+>
+>     -   ? = guess
+>
+>     -   \_ or - = skip
+>
+> -   col_select: columns to include in the results
+>
+> -   id = the name of a column in which to store the file path
+>
+> -   locale: controls defaults that vary from place to place
+>
+> -   na: character vector of strings to interpret as missing values; set this option to character() to indicate no missing values
+>
+> -   comment: a string used to identify comments; any text after the comment characters will be silently ignored
+>
+> -   trim_ws: should leading and trailing whitespace be trimmed from each field before parsing it?
+>
+> -   skip: number of lines to skip before reading data; if comment is supplied any commented lines are ignored after skipping
+>
+> -   n_max: maximum number of lines to read
+>
+> -   guess_max: maximum number of lines to use for guessing column types
+>
+> -   name_repair: handling of column names; the default behavior is to ensure column names are "unique"
+>
+> -   num_threads: the number of processing threads to use for initial parsing and lazy reading of data
+>
+> -   progress: display progress bar?
+>
+> -   show_col_types:
+>
+>     -   if FALSE, do not show the guessed column types
+>
+>     -   if TRUE always show the column types, even if they are supplied
+>
+>     -   if NULL (default), only show the column types if they are not explicitly supplied by the col_types argument
+>
+> -   skip_empty_rows: should blank rows be ignored altogether?
+>
+>     -   if TRUE, then blank rows will not be represented at all
+>
+>     -   if FALSE, then they will be represented by NA values in the columns
+>
+> -   lazy: read values lazily?; FALSE by default
+
+### **parsers and troubleshooting**
+
+> {readr} uses `parse_*()` functions to convert the characters in the input data into a more specialized vector such as integer, logical, or data
+
+```{r}
+parse_date() # parse date; expects a four digit year, a - or /, the month, a - or /, then the day
+parse_time() # parse times; expects the hour, :, minutes, optionally : and seconds, and an optional am/pm specifier
+parse_datetime() # parse date/times; expects an ISO8601 date-time (year, month, day, hour, minute, second)
+parse_guess() # parse using the "best" type; returns the parser vector
+parse_double() # parse double vector; strict number parser
+parse_logical() # parse logicals
+parse_integer() # parse integers
+parse_character() # parse character vector; specifies encoding
+parse_factor() # parse factors; creates factors; similar to factor() but generates a warning if levels have been specified and some elements of x are not found in those levels
+parse_number() # parse numbers, flexibly; parses the first number it finds, dropping any non-numeric characters before the first number and all characters after the first number
+parse_vector() # parse a character vector
+```
+
+> -   {readr} *looks at the first 1000 lines* to guess at the data type. These could be special so you may want to use the `problems(read_in-data)` function to look at the first five parsing failures (see R4DS)
+
+```{r}
+problems() # retrieve parsing problems
+```
+
+**Parsing Format Options**
+
+> -   `%d`: 2-digit representation of day (but can recognize single digits sometimes)
+>
+> -   `%m`: 2-digit representation of month
+>
+> -   `%b`: Abbreviation of month ("Jan")
+>
+> -   `%B`: Full month name ("January")
+>
+> -   `%y`: 2-digit representation of year
+>
+> -   `%Y`: 4-digit representation of year
+
+### **data export**
+
+```{r}
+write_csv() # write a data frame to a csv; faster than write.csv(); uses comma as separator
+write_csv2() # write a data frame to a csv; uses semicolon as separator
+write_tsv() # write a data frame to a tsv
+```
+
+## **tidyr package functions**
+
+```{r}
+pivot_longer() # "lengthens" data, increasing number of rows and decreasing the number of columns
+pivot_wider() # "widens" data, increasing number of columns and decreasing the number of rows
+separate() # separate a character column into multiple columns with a regular expression or numeric locations; given either a regular expression or a vector of character positions, this turns a single character column into multiple columns
+unite() #unite multiple columns into one by pasting strings together; complement to separate()
+```
+
+### **pivot_longer() arguments**
+
+> -   data: a data frame to pivot
+>
+> -   **cols:** columns to pivot into longer format
+>
+>     -   can use any of the tidyselect helper functions, e.g., `starts_with()` or `num_range()`
+>
+> -   cols_vary: when pivoting cols into longer format, how should the output rows be arranged relative to their original row number?
+>
+> -   **names_to:** a character vector specifying the new column(s) to create the information stored in the column names of data specified by cols
+>
+> -   names_prefix: a regular expression used to remove matching text from the start of each variable name
+>
+> -   names_sep, names_pattern: if `names_to` contains multiple values, these arguments control how the column name is broken up
+>
+> -   names_ptypes, values_ptypes: optionally, a list of column name-prototype pairs
+>
+>     -   alternatively, a single empty prototype can be supplied, which will be applied to all columns. A prototype (or ptype for short) is a zero-length vector (like `integer()` or `numeric()`) that defines the type, class, and attributes of a vector.
+>
+>     -   Use these arguments if you want to confirm that the created columns are the types that you expect. Note that if you want to change (instead of confirm) the types of specific columns, you should use `names_transform` or `values_transform` instead.
+>
+> -   names_transform, values_transform: change the types of specific columns
+>
+> -   names_repair: what happens if the output has invalid column names? ; check_unique is default
+>
+> -   **values_to**: the name of the variable you want to create to hold *the cell values*.
+>
+> -   values_drop_na: if TRUE, will drop rows that contain only NAs in the value_to column
+>
+> you must specify at least 3 arguments (bolded)
+
+### **pivot_wider() arguments**
+
+> -   data: a data frame to pivot
+>
+> -   id_cols: pecifies the set of columns which together uniquely identify each observation.
+>
+>     -   Usually the default is okay.
+>
+>     -   It uses all the other columns in the data *except* for the columns in `names_from` and `values_from`
+>
+> -   id_expand: should the values in id_cols columns be expanding by expand() before pivoting?
+>
+> -   **names_from, values_from**: which column (or columns) to get the name of the output column (`names_from`), and which column (or columns) to get the cell values from (`values_from`)
+>
+> -   names_prefix: string added to the start of every variable name; particularly useful if `names_from` is a numeric vector and you want to create syntactic variable names
+>
+> -   names_sep: if `names_from` or `values_from` contains multiple variables, this will be used to join their values together into a single string to use as a column name.
+>
+> -   names_glue: instead of names_sep and names_prefix, can supply a glue specification that uses the names_from columns (and special .value) to create custom column names
+>
+> -   names_sort: should the column names be sorted? if FALSE (default), column names are ordered by first appearance
+>
+> -   names_vary: when names_from identifies a column(s) with multiple unique values and multiple values_from are provided, in what order should the resulting column names be combined?
+>
+> -   names_expand: Should the values in the `names_from` columns be expanded by expand() before pivoting?
+>
+>     -   results in more columns
+>
+>     -   output will contain column names corresponding to a complete expansion of all possible values in names_from
+>
+> -   names_repair: what happens if the output has invalid column names? The default, `"check_unique"` is to error if the columns are duplicated ; use `"minimal"` to allow duplicates in the output, or `"unique"` to de-duplicated by adding numeric suffixes
+>
+> -   values_fill: optionally, a (scalar) value that specifies what each `value` should be filled in with when missing
+>
+> -   values_fn: optionally, a function applied to the value in each cell in the output. You will typically use this when the combination of `id_cols` and `names_from` columns does not uniquely identify an observation
+>
+> -   unused_fn: optionally, a function applied to summarize the values from the unused columns (i.e. columns not identified by `id_cols`, `names_from`, or `values_from`)
+>
+>     -   default drops all unused columns from the result
+>
+> must specify at least 2 arguments (bolded)
+
+### separate() arguments
+
+> -   data: a data frame
+>
+> -   **col**: column to expand
+>
+> -   **into**: names of new variables to create as character vector; use NA to omit the variable in the output
+>
+> -   **sep**: separator between columns
+>
+>     -   if character, sep is interpreted as a regular expression; default value is a regular expression that matches any sequence of nun-alphanumeric values
+>
+>     -   if numeric, sep is interpreted as a character positions to split at
+>
+>         -   If positive, counting from left to right
+>
+>         -   If negative, counting from right to left
+>
+>         -   Should have `length(sep)` = `length (into) -1`
+>
+> -   remove: if TRUE, remove input column from output data frame
+>
+> -   convert: if TRUE, will run type.convert() with as.is = TRUE on new columns; useful if the component columns are integer, numeric, or logical
+>
+> -   extra: if sep is a character vector, this controls what happens when there are too many pieces; three valid options:
+>
+>     -   "warn" (default): emit a warning and drop extra values
+>
+>     -   "drop": drop any extra values without a warning
+>
+>     -   "merge" only splits at most length(into) times
+>
+> -   fill: if sep is a character vector, this controls what happens when there are not enough pieces; three valid options:
+>
+>     -   "warn" (default): emit a warning and fill from the right
+>
+>     -   "right": fill with missing values on the right
+>
+>     -   "left": fill with missing values on the left
+>
+> must specify at least 3 arguments (bolded)
+
+### **unite() arguments**
+
+> -   data: a data frame
+>
+> -   **col**: the name of the new column, as a string or symbol
+>
+> -   **sep**: separator to use between values
+>
+> -   **...: columns to unite**
+>
+> -   remove: if TRUE, remove input columns from output data frame
+>
+> -   na.rm: if TRUE, missing values will be removed prior to uniting each value
+>
+> must specify 3 arguments (bolded)
+
+## **stringr package functions**
+
+```{r}
+str_length() # returns the number of codepoints/characters in a string, which are individual elements that are often but not always letter
+str_sub() # extracts or replaces the elements at a single poisition in each string; extracts codepoints/individual elements
+str_c() # combines multiple character vectors into a single character vector
+```
+
+### **str_c() arguments**
+
+> -   sep: string to insert between input vectors
+>
+> -   collapse: optional string used to combine output into a single string
+>
+> -   ... : one or more character vectors
+>
+> like c(), str_c() can take multiple arguments
+>
+> One way to understand how `str_c()` works is picture a 2d matrix of strings, where each argument forms a column. `sep` is inserted between each column, and then each row is combined together into a single string. If `collapse` is set, it's inserted between each row, and then the result is again combined, this time into a single string.
+
+### **str_replace() arguments**
+
+> -   string: input vector; either a character vector or something coercible to one
+>
+> -   pattern: pattern to look for
+>
+>     -   default interpretation is a regular expression
+>
+>     -   to perform multiple replacements in each element of string, pass supply a named vector (c(pattern1 = replacement1))
+>
+>     -   match a fixed string using fixed(); use coll() for matching human text
+>
+> -   replacement: the replacement value, usually a single string, but it can be a vector the same length as string or pattern
+
+### **modifiers and specifications for the pattern argument**
+
+#### **stringr modifiers**
+
+> modifier functions control the meaning of the pattern argument in stringr functions
+
+```{r}
+boundary() # match boundaries  between things
+coll() # compare strings using unicode collation rules
+fixed() # compare literal bytes; fast, but approximate
+regex() # defaukt; uses ICU regular expressions; for matching human text; respects character matching rules for the specified locale
+```
+
+#### **regular expressions**
+
+> Regular expressions (regex or regexp) is a syntax for pattern matching in strings
+>
+> -   a period "." matches any character
+>
+> -   you can escape a period with two backslashes "\\\\" to match two periods
+>
+> -   to match a backslash, you need four backslashes "\\\\\\\\"
+
+#### anchoring
+
+> You can anchor the pattern to only match the start or end of a string
+>
+> -   ˆ matches only the start of a string
+>
+> -   \$ matches only the end of a string
+>
+> -   Use both to match only a complete string
+
+#### **special characters**
+
+> -   \\\\d: matches any digit
+>
+> -   \\\\s: matches any white space (e.g. space, tab, newline)
+>
+> -   
+>
+> -   
+>
+> -   abc\|xyz: matches either abc or xyz. This is called *alternation*
+>
+>     -   You can use parentheses to control where the alternation occurs
+>
+>     -   a(bc\|xy)z matches either abcz or axyz.
+>
+> -   To ignore case, place a (?i) before the regex
+
+#### **repetition**
+
+> -   Can match a pattern multiple times in a row:
+>
+>     -   ?: 0 or 1
+>
+>     -   +: 1 or more
+>
+>     -   \*: 0 or more
+>
+> -   Control exactly how many repetitions allowed in a match:
+>
+>     -   {n}: exactly n
+>
+>     -   {n,}: n or more
+>
+>     -   {0,m}: at most m
+>
+>     -   {n,m}: between n and m
+>
+> -   Regex will automatically match the longest string possible
+
+#### **grouping and backreferences**
+
+> Parentheses create a numbered group that you can then back reference with \\\\1 for the match in the first parentheses, \\\\2 in the second parentheses, etc. . .
+
+### **stringr tools**
+
+```{r}
+str_to_lower() # converts all letters in the string to lowercase
+str_to_upper() # converts all letters in the string to upper case
+str_to_title() # converts to title case, where only the first letter of each word is capitalized
+str_to_sentence() # concerts to sentence case, where only the first letter of sentence is capitalized
+str_detect() #  returns TRUE if a regex pattern matches a string and FALSE if it does not; very useful for filters
+str_subset() #  returns the words where there is a match
+str_count() # counts the occurrence of a match within a string; count nonoverlapping matches
+str_extract() # returns the pattern that it finds; extracts only the first complete match from each string
+str_extract_all() # extracts all matches from each string
+str_match() # extracts capture groups formed by () from the first match; returns a matrix where each column is a grouped component
+str_match_all() # extracts all matched groups from a string; returns a list of character matrices
+str_split() # takes a character vector and returns a list; will split up a string based on a character we choose
+str_replace() # replaces the first match with new text
+str_replace_all() # replaces all matches 
+```

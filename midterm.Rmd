@@ -1,0 +1,160 @@
+---
+title: "test_1"
+author: "lisa liubovich"
+date: "2023-10-04"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(repos = c(CRAN = "https://cran.r-project.org"))
+```
+
+```{r}
+install.packages("tidyverse")
+library(tidyverse)
+install.packages("ggplot2")
+library(ggplot2)
+install.packages("dplyr")
+library(dplyr)
+```
+
+**Question 1**
+
+```{r}
+# piping method
+midwest %>% 
+  filter(state %in% c("OH"))
+```
+
+```{r}
+# assignment method
+ohio_data <- filter(midwest, state == "OH")
+head(ohio_data)
+```
+
+**Question 2**
+
+```{r}
+midwest %>% 
+  filter((state == "OH"),
+         popwhite > 50000,
+         popwhite < 90000)
+```
+
+**Question 3**
+
+```{r}
+midwest %>% 
+  select(state:county, poptotal, popamerindian, percamerindan) %>% 
+  arrange(desc(popamerindian)) %>% 
+  slice_head(n = 20)
+```
+
+**Question 4**
+
+```{r}
+midwest %>% 
+  filter((state == "MI"),
+         (poppovertyknown > 10000 & percprof > 10)) %>% 
+  select(state:county, poppovertyknown, percprof) 
+```
+
+**Question 5**
+
+```{r}
+midwest %>% 
+  mutate(mean_poverty_pop = mean(poppovertyknown)) %>% 
+  group_by(county) %>% 
+  select(county:state, mean_poverty_pop)
+```
+
+**Question 6**
+
+```{r}
+ggplot(data = midwest, mapping = aes(x = poptotal, y = poppovertyknown)) +
+  geom_point() +
+  scale_x_log10() +
+  scale_y_log10() +
+  xlab("Total Population") +
+  ylab("Known Poverty Population") +
+  ggtitle("Relationship Between Total Population and Known Poverty Population")
+```
+
+**Question 7**
+
+```{r}
+ggplot(data = midwest, mapping = aes(x = state, y = percadultpoverty)) +
+  geom_boxplot() +
+  xlab("state") +
+  ylab("percadultpoverty")
+```
+
+**Question 8**
+
+```{r}
+ggplot(data = midwest, mapping = aes(x = percollege, y = percprof)) +
+  geom_point(color = "red") +
+  geom_smooth(se = FALSE, method = lm, color = "black") +
+  xlab("percollege") +
+  ylab("percprof") +
+  ggtitle("College/Professional Work Scatterplots") +
+  facet_wrap(.~state)
+```
+
+**Question 9**
+
+> Illinois has the highest count with slightly over 100.
+
+```{r}
+ggplot(data = midwest, mapping = aes(x = state, fill = state)) +
+  geom_bar()
+```
+
+**Question 10**
+
+> part a: the str() command shows the structure of the dataset midwest. The first line of the output (tibble [437 x 28] .....) confirms that midwest is a tibble.
+
+```{r}
+str(midwest)
+```
+
+> part b: the first method subsets poptotal and shows the output as a vector. The second method subsets poptotal and shows the output as a tibble.
+
+```{r}
+# first method
+midwest$poptotal
+```
+
+```{r}
+subset <- midwest["poptotal"]
+print(subset)
+```
+
+> part c:
+
+```{r}
+midwest %>% 
+  group_by(state) %>% 
+  summarize(mean_area = mean(area)) %>% 
+  select(state, mean_area)
+```
+
+**Question 11**
+
+```{r}
+midwest %>% 
+  mutate(Ratio = popadults/poptotal) %>% 
+  mutate(Percent = Ratio*100) %>% 
+  select(state, county, poptotal, popadults, Ratio, Percent) %>% 
+  filter(state == "WI") %>% 
+  slice_head(n = 25)
+```
+
+**Question 12**
+
+```{r}
+ggplot(data = midwest, mapping = aes(x = area, y = state, fill = state)) +
+  geom_violin() +
+  ggtitle("Violin Plots (area vs state)")
+```

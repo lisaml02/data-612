@@ -1,0 +1,44 @@
+---
+title: "class_10_17"
+author: "lisa liubovich"
+date: "2023-10-17"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+pl <- ggplot(mpg, aes(x = hwy, y = cty)) +
+  geom_point()
+# default path
+ggsave(filename= "my_saved_plot_default_path.pdf", plot = pl)
+
+# because it is default, it saves to the curent folder we are in
+```
+```{r}
+# read_lines("address", n_max = 10) lets you read the first ten lines and decide if what kind of file format you in 
+
+# read the data using read_delim before you read the actual file
+```
+
+
+```{r}
+
+```
+
+
+```{r}
+hate_crimes <-
+  read_csv(file = "https://dcgerard.github.io/stat_412_612/data/hate_crimes2.csv")
+
+# If the .csv is online and you know the URL, you can use the URL for the file argument.
+```
+
+```{r}
+read_csv(file = "../DATA_612_directory/hate_crimes4.csv")
+```
+```{r}
+```
+

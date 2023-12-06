@@ -1,0 +1,90 @@
+---
+title: "class_11_10"
+author: "lisa liubovich"
+date: "2023-11-10"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(repos = c(CRAN = "https://cran.rstudio.com/"))
+```
+
+# **regex (cont'd)**
+
+> regex finds generic patterns in strings so you don't gave to do it manually
+
+**simple example**
+
+```{r}
+s <- "..! abc 123 AAAbba"
+str_replace_all(s, "\\D", "X") # everything that isn't a digit; D negates
+```
+
+```{r}
+s <- "..! abc 123 AAAbba"
+str_replace_all(s, "\\w", "X") # w stands for word; replaces any alpha-numeric
+
+s <- "..! abc 123 AAAbba"
+str_replace_all(s, "\\W", "X") # replaces everything BUT the alpha-numerics
+```
+
+```{r}
+s <- "..! abc 123 AAAbba"
+str_replace_all(s, "\\s", "X") # replaces spaces
+
+s <- "..! abc 123 AAAbba"
+str_replace_all(s, "\\S", "X") # replaces everything BUT the spaces
+```
+
+```{r}
+s <- "..! abc 123 AAAbba"
+str_replace_all(s, ".", "X") # "." matches everything
+```
+
+```{r}
+x <- c("AnnaTTzz: 5-0987", "AbnaTTzz: 55-0987000887")
+str_replace_all(x, "(An|Ab)na(TT)zz: (5{1,2}-).*", "\\1\\2\\3") # \\1 refers to the first group, \\2 refers to the second group. they are stored and used later. 
+
+# our first group is either An OR Ab
+```
+
+> when you see parenthesis, you should recognize that there are groups. we use groups when we want to store them and use them later.
+>
+> the groups can be separated by dashes, commas, or nothing at all.
+
+## **grouping and backreferences**
+
+> **Parentheses can also create a numbered group you can then back-reference** with `\\1` for the match in the first parentheses, `\\2` in the second parentheses, etc...
+
+```{r}
+str_replace("cococola", "..", "pepsi") # str_replace looks for the first and second character; the first tow characters are replaced by "pepsi 
+```
+
+```{r}
+str_replace("cococola", "(..)\\1", "pepsi") # grouping the first two characters; when the first two characters are repeated, they are replaced by pepsi
+```
+
+```{r}
+str_replace("cococola", "(..)\\1\\1", "pepsi") # grouping the first two characters; must be repeated 3 times, then replaced by pepsi
+```
+
+```{r}
+str_replace("banana", "([aeiou][^aeiou])\\1", "XX") # first bracket is lower case vowels which must be followed by lower case consonants; they are grouped in the parenthesis; whatever we see must be repated once and then replaced with "XX"
+```
+
+```{r}
+# finds "ississ" and replaces it with "Xs"
+str_replace("Mississippi","(i)(s)\\2\\1\\2\\2","\\2\\1\\1\\2\\1\\1") 
+```
+
+```{r}
+df <-data.frame(col1 = c("M123D7719", "NZ42D9780", "MU04D1", "N142D762", "N047D91N2,?"))
+df
+```
+
+```{r}
+df %>% 
+  mutate(col2 = str_replace(col1, "D.*", ""),
+         col3 = str_replace(col1, "^\\w{4}", ""))
+```

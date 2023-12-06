@@ -1,0 +1,49 @@
+---
+title: "class_9-26_dplyr"
+author: "lisa liubovich"
+date: "2023-09-26"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+install.packages("nycflights13")
+library(nycflights13)
+```
+
+```{r}
+view(flights) #use this to view the dataset. can also use head()
+#data structure is made up of any of the 6 R data types, such as dataframes or vectors. data types include logical, integer, double, character, complex, and raw.
+str(flights) #shows the data types. tibble is a nicer version of dataframe/better way to handle data but it is eventually a dataframe. check your written notes for the functions for rows and columns. 
+```
+```{r}
+flights %>% #goes to first to argument; equivalent to filter(flights, month==1)
+  filter((month == 1 & origin == "LGA") | (month == 12 & origin == "JFK"))
+```
+
+```{r}
+#flights %>% #ctrl shift m
+  #filter((month %% 2 == 1) | (day %% 2 == 0 & month %% 2 == 0))
+
+flights %>% 
+  filter((dest =="IAH" | dest == "HOU"),
+         (carrier == "UA" | carrier == "AA" | carrier == "DL"),
+         (month == 7 | month == 8 | month == 9),
+         (arr_delay > 15 & dep_delay <= 0)
+         )
+```
+```{r}
+View(flights)
+names(flights) #gives all the names of the columns
+flights %>% 
+  filter(dest %in% c("IAH", "HOU"), 
+         carrier %in% c("AA", "UA", "DL"),
+         month %in% 7:9,
+         arr_delay > 15,
+         dep_delay <= 0) #%in% operator works like or, like in for loops
+```
+
+

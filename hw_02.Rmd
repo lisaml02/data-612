@@ -1,0 +1,317 @@
+---
+title: "hw_02"
+author: "lisa liubovich"
+date: "2023-09-20"
+output: pdf_document
+---
+
+HW 02
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+install.packages("tidyverse")
+library(tidyverse)
+```
+
+**Question 1**
+
+a\.
+
+1.  the function checks if the input is divisible by 5
+2.  if the input is divisible by 5, the function returns "fizz"
+3.  if the input is not divisible by 5, check if the input is divisible by 3
+4.  if the input is divisible by 3, the function returns "buzz"
+5.  the function checks if the input is divisible by both 3 and 5
+6.  if the input is divisible by both 3 and 5, the function returns "buzzfizz"
+7.  if the input is neither divisible by 3 or 5, the function returns the input number
+
+b\.
+
+```{r step 1; check if divisible by 5}
+x<- 3
+x %% 5 == 0
+
+x<- 5
+x %% 5 == 0
+
+x<- 15
+x %% 5 == 0
+
+x<- 16
+x %% 5 == 0
+
+```
+
+```{r step 2: if divisible by 5, return "fizz"}
+x<- 3
+if (x %% 5 == 0) print("fizz")
+
+x<- 5
+if (x %% 5 == 0) print("fizz")
+
+x<- 15
+if (x %% 5 == 0) print("fizz")
+
+x<- 16
+if (x %% 5 == 0) print("fizz")
+
+```
+
+```{r step 3; if not divisible by 5, check if divisible by 3}
+x<- 3
+x %% 3 == 0
+
+x<- 5
+x %% 3 == 0
+
+x<- 15
+x %% 3 == 0
+
+x<- 16
+x %% 3 == 0
+
+
+```
+
+```{r step 4; if input is divisible by 3, return "buzz"}
+x<- 3
+if (x %% 3 == 0) print("buzz")
+
+x<- 5
+if (x %% 3 == 0) print("buzz")
+
+x<- 15
+if (x %% 3 == 0) print("buzz")
+
+x<- 16
+if (x %% 3 == 0) print("buzz")
+```
+
+```{r step 5; check to see if divisible by both}
+x<- 3
+x %% 3 == 0 & x %% 5 == 0
+
+x<- 5
+x %% 3 == 0 & x %% 5 == 0
+
+x<- 15
+x %% 3 == 0 & x %% 5 == 0
+
+x<- 16
+x %% 3 == 0 & x %% 5 == 0
+```
+
+```{r step 6; if divisible by 3 and 5, return "buzzfizz"}
+x<- 3
+if (x %% 3 == 0 & x %% 5 == 0) 
+  print("buzzfizz")
+
+x<- 5
+if (x %% 3 == 0 & x %% 5 == 0) 
+  print("buzzfizz")
+
+x<- 15
+if (x %% 3 == 0 & x %% 5 == 0) 
+  print("buzzfizz")
+
+x<- 16
+if (x %% 3 == 0 & x %% 5 == 0) 
+  print("buzzfizz")
+```
+
+```{r step 7; if not divisible by 3 or 5, return input}
+x<- 3
+if (!(x %% 3 == 0 || x %% 5 == 0))
+  print(x)
+
+x<- 5
+if (!(x %% 3 == 0 || x %% 5 == 0))
+  print(x)
+
+x<- 15
+if (!(x %% 3 == 0 || x %% 5 == 0))
+  print(x)
+
+x<- 16
+if (!(x %% 3 == 0 || x %% 5 == 0))
+  print(x)
+```
+
+c\.
+
+```{r final function with default argument}
+buzzfizz <- function(x) {
+  if (is.null(x)) {
+    print("no input provided. using default value of 0.")
+    x <- 0
+  }
+  
+  if (x %% 3 == 0 && x %% 5 == 0) {
+    print("buzzfizz")
+  } else if (x %% 3 == 0) {
+    print("buzz")
+  } else if (x %% 5 == 0) {
+    print("fizz")
+  } else {
+    print(x)
+  }
+}
+```
+
+d\.
+
+```{r function tested on values}
+buzzfizz(3)
+buzzfizz(5)
+buzzfizz(15)
+buzzfizz(2)
+```
+
+e\.
+
+```{r, error=TRUE updated function with error checking}
+buzzfizz <- function(x) {
+  # check to see if if x is numeric and a single value
+  if (!is.numeric(x) || length(x) != 1) {
+    stop("Input must be a numeric single value.")
+  }
+  
+  if (is.null(x)) {
+    warning("No input provided. Using default value of 0.")
+    x <- 0
+  }
+  
+  if (x %% 3 == 0 && x %% 5 == 0) {
+    print("buzzfizz")
+  } else if (x %% 3 == 0) {
+    print("buzz")
+  } else if (x %% 5 == 0) {
+    print("fizz")
+  } else {
+    print(x)
+  }
+}
+
+Testing with invalid inputs:
+Error: Input must be a numeric single value.
+Error: Input must be a numeric single value.
+
+Testing with valid inputs:
+Result 3: buzzfizz
+Result 4: 7
+
+```
+
+f\.
+
+```{r}
+#' BuzzFizz Function
+#'
+#' This function checks the divisibility of a numeric input value \code{x} and returns one of the following:
+#' - "buzzfizz" if \code{x} is divisible by both 3 and 5.
+#' - "buzz" if \code{x} is divisible by 3.
+#' - "fizz" if \code{x} is divisible by 5.
+#' - The input \code{x} itself if it's not divisible by 3, 5, or both.
+#'
+#' @param x Numeric value to be checked for divisibility.
+#'
+#' @return A character string indicating divisibility or the input value itself.
+#'
+#' @details This function also includes error checking to ensure that the input \code{x} is a numeric single value.
+#' If \code{x} is not numeric or not a single value, an error will be raised.
+#'
+#' @examples
+#' # Test with valid inputs
+#' buzzfizz(15) # Returns "buzzfizz"
+#' buzzfizz(7)  # Returns 7
+#'
+#' # Test with invalid inputs
+#' tryCatch(
+#'   {
+#'     buzzfizz("cat")   # Error: Input must be a numeric single value.
+#'     buzzfizz(c(1, 5)) # Error: Input must be a numeric single value.
+#'   },
+#'   error = function(e) {
+#'     cat("Error:", e$message, "\n")
+#'   }
+#' )
+#'
+#' @export
+buzzfizz <- function(x) {
+  # Check if x is numeric and a single value
+  if (!is.numeric(x) || length(x) != 1) {
+    stop("Input must be a numeric single value.")
+  }
+  
+  if (is.null(x)) {
+    warning("No input provided. Using default value of 0.")
+    x <- 0
+  }
+  
+  if (x %% 3 == 0 && x %% 5 == 0) {
+    print("buzzfizz")
+  } else if (x %% 3 == 0) {
+    print("buzz")
+  } else if (x %% 5 == 0) {
+    print("fizz")
+  } else {
+    print(x)
+  }
+}
+
+```
+
+**Question 2**
+
+```{r}
+set.seed(1)
+
+result <- 1:10 %>%
+  sample(1000, replace = TRUE) %>%
+  mean() %>%
+  exp()
+
+cat("Result:", result, "\n")
+
+
+```
+
+**Question 3**
+
+```{r}
+set.seed(1)
+
+sample_values <- rnorm(100, mean = 10, sd = sqrt(3))
+
+proportion_greater_than_12 <- sum(sample_values > 12) / length(sample_values)
+
+cat("Proportion greater than 12:", proportion_greater_than_12, "\n")
+
+```
+
+**Question 4**
+
+```{r}
+x <- c(TRUE, FALSE, TRUE, TRUE)
+y <- c(FALSE, FALSE, TRUE, FALSE)
+z <- NA
+
+result1 <- x & y
+result2 <- x & z
+result3 <- !(x | y)
+result4 <- x | y
+result5 <- y | z
+result6 <- x[y]
+result7 <- y[x]
+result8 <- x[x | y]
+
+cat("x & y:", result1, "\n")
+cat("x & z:", result2, "\n")
+cat("!(x | y):", result3, "\n")
+cat("x | y:", result4, "\n")
+cat("y | z:", result5, "\n")
+cat("x[y]:", result6, "\n")
+cat("y[x]:", result7, "\n")
+cat("x[x|y]:", result8, "\n")
+
+```

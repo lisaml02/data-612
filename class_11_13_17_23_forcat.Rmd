@@ -1,0 +1,215 @@
+---
+title: "class_11_13_17_23forcat_"
+author: "lisa liubovich"
+date: "2023-11-21"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(repos = c(CRAN = "https://cran.r-project.org"))
+```
+
+# **missed lecture content from last week**
+
+## creating and manipulating factors
+
+### 2.1 factors
+
+> -   A **factor** variable is R's way to differentiate **categorical** data, i.e., a variable where each observational/experimental unit belongs to one and only one group, category, or level out of a set of groups, categories, or levels.
+>
+> -   Being designated as a factor allows R to provide special treatment to the data
+>
+>     -   Hair Color could be a factor with levels: Auburn, Red, Brown, Black, Blonde, ...
+>
+>     -   City sizes: Small, Medium, Large, or Megalopolis
+>
+>     -   Major: Data Science, Mathematics, Statistics, or Other
+>
+> -   Factors may have words as labels for the levels but they are different from a character variable such as "Brown" or "Small":
+>
+>     1.  Factors have a fixed (usually small) number of "levels" (possible values)
+>
+>         -   A character variable, e.g., "City_name", can have many different values.
+>
+>     2.  Factors have a default ordering of the levels
+>
+>         -   Character variables are only ordered through alpha-numeric sequencing
+>
+>         -   Note the Default ordering for factors in R is alpha-numeric **but you can change it** to whatever makes sense for the problem
+>
+>         -   Ordering is useful when determining the order to plot something.
+
+#### 2.2 ex:
+
+```{r}
+install.packages("tidyverse")
+library(tidyverse)
+
+dcclimate <- tribble(~month, ~avehigh,
+                     ##----/---------
+                     "Jan",  43.4,
+                     "Feb",  47.1,
+                     "Mar",  55.9,
+                     "Apr",  66.6,
+                     "May",  75.4,
+                     "Jul",  88.4,
+                     "Aux",  86.5,
+                     "Sep",  79.5,
+                     "Oct",  68.4,
+                     "Nov",  57.9,
+                     "Dec",  46.8)
+head(dcclimate)
+```
+
+> Notice `Month` is a character variable. What happens when we plot the data?
+
+```{r}
+install.packages("ggplot2")
+library(ggplot2)
+
+ggplot(dcclimate, aes(x = month, y = avehigh)) +
+  geom_col()
+```
+
+> -   The plot doesn't look right:
+>
+>     -   The months are in alphabetical, not calendar, order, i.e.,"A" months came first
+>
+>     -   It's hard to see the weather for June is missing
+>
+>     -   The 3-letter abbreviation for August is incorrect.
+>
+> -   Factors (and {forcats}) can help us address all of these issues.
+
+## **2.3 Factors have some nuances as they have two different representations**
+
+> -   When we look at the data, we see the **labels** of the levels be they words or numbers
+>
+>     -   Use `levels(factor_var)` to access the labels and **the order of the levels**
+>
+> -   **R actually stores factors as integers from 1, 2, ... number of levels**
+>
+>     -   Use `as.numeric(factor_var)` to access the stored integer values
+>
+> -   **Be careful when working with factor data as results may be counter-intuitive at first.**
+>
+> -   Example: Assume an experimental treatment has levels 2, 15, 32, and 51
+
+```{r}
+x  <- c("51", "32", "15", "2", "32")
+xf <- factor(x)
+class(x)
+```
+
+```{r}
+as.numeric(x)
+```
+
+```{r}
+as.numeric(xf)
+```
+
+```{r}
+class(xf)
+```
+
+```{r}
+typeof(xf)
+```
+
+> Converting a character variable to a factor
+
+```{r}
+as.numeric("Hello")
+```
+
+```{r}
+as.numeric(factor("Hello"))
+```
+
+> -   Combining factors with `c()` now creates a new factor with **changed levels**, not a factor with integrated levels.
+>
+>     -   This is new as of [R 4.1.0](https://cran.r-project.org/doc/manuals/r-release/NEWS.pdf):
+>
+> -   Using `c()` to combine two ordered factors with identical levels creates an ordered factors with identical levels.
+
+```{r}
+fac1 <- factor(c("x1", "x2", "x3", "x4"))
+fac2 <- factor(c("y1", "y2", "y3"))
+c(fac1, fac2) # %>% str()
+```
+
+```{r}
+as.numeric(c(fac1, fac2))
+```
+
+```{r}
+c(levels(fac1), levels(fac2)) %>% str()
+```
+
+```{r}
+fac1 <- factor(c("x1", "x2", "x3", "x4"))
+fac2 <- factor(c("x1", "x2", "x3"))
+c(fac1, fac2) # %>% str()
+```
+
+```{r}
+fac1 <- factor(c("x1", "x2", "x3", "x4"))
+fac2 <- factor(c("x3", "x2", "x1"))
+c(fac1, fac2) # %>% str()
+```
+
+## **2.4 Converting Factor Variables with Numbers as Levels to Numeric Variables**
+
+> -   Sometimes data can have numbers coded as a factor (as in `xf` above), but you want to work with the actual numbers (as they have mathematical relationships)
+>
+> -   When you are sure all levels of a factor variable are numeric, you can convert the values of a factor variable to be numeric.
+>
+> -   Does the following work?
+
+```{r}
+xf
+```
+
+```{r}
+levels(xf)
+```
+
+```{r}
+parse_number(levels(xf))
+```
+
+> -   No, it just converts the 4 levels but not the whole vector of 5 observations
+>
+> -   Consider using the integer representation from `as.numeric()` *inside select brackets*
+>
+>     -   *Take advantage of recycling*
+
+```{r}
+xf
+```
+
+```{r}
+as.numeric(xf)
+```
+
+```{r}
+xf[xf]
+```
+
+```{r}
+levels(xf)
+```
+
+```{r}
+levels(xf)[xf]
+```
+
+```{r}
+class(levels(xf)[xf])
+```
+
+> -   This creates a vector of characters for the numerics for all the observations in the original variable
+>
+> -   The final step is parse the vector of characters to convert to numeric

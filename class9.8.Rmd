@@ -1,0 +1,91 @@
+---
+title: "class 9/8"
+author: "lisa liubovich"
+date: "2023-09-08"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+x <- rnorm(100, mean=0, sd=10)
+x %>% 
+  sort() %>%
+  diff() %>%
+  mean() %>%
+  round(digits=2) -> output_1
+print(output_1)
+
+weighted_mean_fn <- function(x,w){
+  y <- sum(x*w)
+  z <- sum(w)
+  output <- y/z
+  return(output)
+}
+
+x <- 1:10
+w <- 11:20
+weighted_mean_fn(x,w)
+```{r}
+weighted_mean_fn <- function(x,w){
+  if (any(w< 0)){
+    return("one of the elements of w is negative")
+  }
+  y <- sum(x*w)
+  z <- sum(w)
+  output <- y/z
+  return(output)
+}
+
+x <- 1:10
+w <- -1:8
+weighted_mean_fn(x,w)
+```
+
+
+```{r}
+sum_comparison <- function(x1,x2){
+  if (sum(x1, na.rm = TRUE) <= sum(x2, na.rm= TRUE)){
+    return(TRUE)
+  }
+  return(FALSE)
+}
+
+x1 <- c(1,2,NA)
+x2 <- c(2,3,NA,NA)
+sum_comparison(x1,x2)
+```
+
+
+```{r}
+c(1,2,NA)
+sum(c(1,2,NA))
+```
+
+
+```{r}
+c(1,2,NA)
+  x <- c(1,2,NA)
+  sum(x, na.rm=TRUE)

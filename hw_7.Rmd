@@ -1,0 +1,401 @@
+---
+title: "hw_07"
+author: "lisa liubovich"
+date: "2023-11-27"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(repos = c(CRAN = "https://cran.r-project.org"))
+```
+
+```{r loading packages}
+install.packages("tidyverse")
+library(tidyverse)
+install.packages("dplyr")
+library(dplyr)
+library(readr)
+library(stringr)
+```
+
+# 1. Scrabble Words
+
+## 1.1
+
+```{r 1.1}
+scrabble_words <- read_delim(file = "https://raw.githubusercontent.com/rressler/data_raw_courses/main/scrabble_words.txt", delim = "\t") %>% 
+  filter(!is.na(word))
+```
+
+```{r 1.1a}
+nrow(scrabble_words)
+```
+
+> there are 276,642 words.
+
+```{r 1.1b}
+
+sum(is.na(scrabble_words))
+```
+
+> there are 0 NAs in this data set.
+
+## 1.2
+
+```{r 1.2}
+scrabble_words %>% 
+  filter(str_detect(word, "^X|X$"))
+```
+
+> there are 885 words that either begin or end with "X"
+
+## 1.3
+
+```{r}
+scrabble_words %>%
+  filter(
+    str_detect(word, "A") &
+    str_detect(word, "E") &
+    str_detect(word, "I") &
+    str_detect(word, "O") &
+    str_detect(word, "U")
+  )
+```
+
+> there are 3,476 words that contain all of the vowels A, E, I, O, and U
+
+## 1.4
+
+```{r 1.4 all vowel words, shortest to longest}
+scrabble_words %>%
+  filter(
+    str_detect(word, "A") &
+    str_detect(word, "E") &
+    str_detect(word, "I") &
+    str_detect(word, "O") &
+    str_detect(word, "U")
+  ) %>% 
+  arrange(nchar(word))
+```
+
+```{r 1.4 shortest all vowel words}
+scrabble_words %>%
+  filter(
+    str_detect(word, "A") &
+    str_detect(word, "E") &
+    str_detect(word, "I") &
+    str_detect(word, "O") &
+    str_detect(word, "U")
+  ) %>% 
+  arrange(nchar(word)) %>% 
+  slice(1:5)
+```
+
+> > the first tibble is all the words arranged in ascending order by character length, from the shortest words containing all the vowels to the longest. the second tibble just shows the shortest 5 words containing all the vowels.
+
+## 1.5
+
+```{r 1.5a}
+scrabble_words_updated <- scrabble_words %>% 
+  mutate(swapped = str_replace_all(word, "^([A-Za-z])(.*)([A-Za-z])$", "\\3\\2\\1")) 
+```
+
+```{r 1.5a continued}
+found_words <- intersect(scrabble_words_updated$swapped, scrabble_words$word)
+
+scrabble_words_updated <- scrabble_words_updated %>%
+  mutate(is_valid_word = swapped %in% found_words)
+```
+
+```{r 1.5b}
+sum(scrabble_words_updated$is_valid_word)
+```
+
+> there are 21,285 words that are still valid words when the first and last letters are swapped.
+
+## 1.6
+
+```{r 1.6}
+swapped_valid_words <- scrabble_words_updated %>%
+  mutate(swapped = str_replace_all(word, "^([A-Za-z])(.*)([A-Za-z])$", "\\3\\2\\1")) %>%
+  filter(swapped %in% scrabble_words$word) %>%
+  filter(str_sub(word, 1, 1) != str_sub(word, nchar(word), nchar(word)))
+
+nrow(swapped_valid_words)
+```
+
+> there are 1,694 swapped and valid words that have different first and last letters.
+
+## 1.7
+
+```{r 1.7 all words that satisfy conditions, arranged from longest to shortest}
+swapped_valid_words %>% 
+  arrange(desc(nchar(word))) %>% 
+  mutate(length = str_length(word))
+```
+
+```{r 1.7 longest word pairs that satisfy both conditions}
+swapped_valid_words %>% 
+  arrange(desc(nchar(word))) %>% 
+  mutate(length = str_length(word)) %>% 
+  slice(1:6)
+```
+
+> the first tibble shows all the words that satisfy both conditions along with their lengths, arranged from longest character length to shortest. the second tibble shows the words with the longest character length (14) that satisfy both conditions.
+
+## 1.8
+
+```{r 1.8 categorization}
+low <- c("A","E","I","O","U","D","L","M","N","R","S","T","Y")
+med <- c("B","C","F","G","H","K","P","W", "V")
+high <- c("J","Q","X","Z")
+length(low) + length(med) + length(high)
+```
+
+```{r 1.8 points}
+pts <- c(1,5,10)
+```
+
+```{r 1.8a}
+score <- function(words) {
+  words <- str_to_upper(words)
+  scores <- str_count(words, paste0("[" , paste(low, collapse = ""), "]")) * pts[1] +
+            str_count(words, paste0("[" , paste(med, collapse = ""), "]")) * pts[2] +
+            str_count(words, paste0("[" , paste(high, collapse = ""), "]")) * pts[3]
+  return(scores)
+}
+
+# example:
+input_words <- c("dog", "cat", "jump", "quiz")
+result <- score(input_words)
+print(result)
+```
+
+```{r 1.8b all 7 letter long words and their scores}
+scrabble_words %>% 
+  mutate(score = score(word)) %>% 
+  mutate(length = str_length(word)) %>% 
+  filter(length == 7) %>% 
+  arrange(desc(score))
+```
+
+```{r 1.8b highest or next highest scoring 7 letter words}
+scrabble_words %>% 
+  mutate(score = score(word)) %>% 
+  mutate(length = str_length(word)) %>% 
+  filter(length == 7) %>% 
+  arrange(desc(score)) %>% 
+  slice(1:8)
+```
+
+> the first tibble shows 7 letter words, arranged by score from high to low. the second tibble shows the 7 letter words with the highest and next-highest scores.
+
+```{r 1.8c full tibble}
+scrabble_words %>% 
+  filter(
+    !str_detect(word, "[AEIOU]")
+  ) %>% 
+  mutate(score = score(word)) %>% 
+  arrange(desc(score)) %>% 
+  mutate(length = str_length(word))
+```
+
+```{r 1.8c top 3 highest scoring words}
+scrabble_words %>% 
+  filter(
+    !str_detect(word, "[AEIOU]")
+  ) %>% 
+  mutate(score = score(word)) %>% 
+  arrange(desc(score)) %>% 
+  mutate(length = str_length(word)) %>% 
+  slice(1:3)
+```
+
+> The first tibble shows all words with no vowels with their lengths, arranged by score from high to low. The second tibble shows the top 3 highest scoring words with now vowels as well as their lengths.
+
+```{r 1.8c full tibble scores}
+scrabble_words %>% 
+  filter(
+    !str_detect(word, "[AEIOU]")
+  ) %>% 
+  mutate(score = score(word)) %>% 
+  arrange(desc(nchar(word))) %>% 
+  mutate(length = str_length(word))
+```
+
+```{r 1.8c top 3 longest words}
+scrabble_words %>% 
+  filter(
+    !str_detect(word, "[AEIOU]")
+  ) %>% 
+  mutate(score = score(word)) %>% 
+  arrange(desc(nchar(word))) %>% 
+  mutate(length = str_length(word)) %>% 
+  slice(1:3)
+```
+
+> The first tibble shows all words with no vowels as well as their scores, arranged by length from high to low. The second tibble shows the top 3 longest words with no vowels as well as their scores.
+
+```{r}
+install.packages("ggplot2")
+library(ggplot2)
+```
+
+```{r 1.8d and 1.8e extra credit}
+vowel_dist <- scrabble_words %>% 
+  mutate(length = str_length(word),
+         vowel_count = str_count(word, "[AEIOU]")) %>% 
+  filter(length <= 8) %>% 
+  mutate(score = score(word))
+
+ggplot(vowel_dist, aes(vowel_count, score)) +
+  geom_boxplot(aes(group = cut_width(vowel_count, 0.5)),
+                   outlier.shape = 19) +
+  stat_summary(fun = "mean", geom = "point", shape = 19, size = 2, color = "red") +
+  xlab("Number of Vowels") +
+  ylab("Score") +
+  labs(title = "Possible Scores for Seven Letter Words*",
+          subtitle = "Red circles are the sample means of each distribution",
+          caption = "*Assumes no limit of quantity of letters") +
+  scale_x_continuous(breaks = unique(vowel_dist$vowel_count)) +
+  theme_gray()
+
+```
+
+> 1.8f: The reason why the red dot representing the mean is above the line on almost all the boxplots is because those box plots in question have many upper outliers/are skewed left. Median is a resistant measure of center while mean is not, meaning that means are highly affected by outliers while medians are not. Here, we see how the many upper outliers/left skew pulls the mean upwards above the median (the bolded middle lines).
+>
+> Further interpretation: The average score for a 8 letter or less word with no vowels is 10, while the median is slightly below ten. For 1 vowel, the average score is slightly above ten while the median is 10. For 2 vowels, the average score is approximately 13 while the median is slightly below this approximation. For 3 vowels, the median looks to be approximately the same as for 2 vowels but with a slightly higher mean. The 3 vowel boxplot is also the only one with a lower outlier. For 4 vowels, the median and mean are approximately the same as for 2 vowels. The same goes for 5 vowels, except this boxplot shows a higher interquartile range. Finally, for 6 vowels, the mean is around 10 while the median is slightly above the mean. This is also the only boxplot where the median is higher than the mean, reflecting its relatively low maximum value and overall spread.
+
+# 2. Bank Data
+
+## 2.1
+
+```{r 2.1}
+bank_data <- read_csv(file = "../data/fed_large_c_bank_ratings.csv")
+```
+
+```{r 2.1a}
+nrow(bank_data)
+```
+
+> there are 375 rows in the data frame.
+
+```{r 2.1b}
+bank_data %>% 
+  sample_n(size = nrow(bank_data) * 0.03)
+```
+
+## 2.2
+
+```{r 2.2a}
+bank_data %>% 
+  filter(str_detect(name, "/$"))
+```
+
+```{r 2.2b}
+bank_data %>% 
+  filter(str_count(name, "/") > 1)
+```
+
+```{r 2.2c}
+bank_data1 <- bank_data %>% 
+  separate(name,
+           into = c("primary_name", "alternate_name"),
+           sep = "/",
+           extra = "merge")
+
+bank_data1
+```
+
+## 2.3
+
+```{r 2.3}
+bank_data1 %>% 
+  filter(str_detect(primary_name, "^\\d"))
+```
+
+## 2.4
+
+```{r 2.4a}
+bank_data1 %>% 
+  filter(str_detect(primary_name, "BANK"))
+```
+
+```{r 2.4b}
+bank_data1 %>% 
+  filter(str_detect(primary_name, "^BANK\\b"))
+```
+
+## 2.5
+
+```{r 2.5a}
+bank_data2 <- bank_data1 %>% 
+  mutate(primary_name = str_replace_all(primary_name, "BK", "BANK"))
+
+bank_data2
+```
+
+```{r 2.5b}
+bank_position <- bank_data2 %>%
+  mutate(
+    start = str_detect(primary_name, "^BANK\\b"),
+    end = str_detect(primary_name, "\\bBANK$"),
+    middle = str_detect(primary_name, "\\bBANK\\b") & !start & !end,
+    none = !start & !middle & !end,
+    confirm = case_when(
+      start == TRUE & middle == FALSE & end == FALSE ~ "start",
+      middle == TRUE ~ "middle",
+      end == TRUE ~ "end",
+      none == TRUE ~ "none"
+    )
+  )
+
+bank_position
+```
+
+```{r 2.5c}
+bank_position %>%
+  summarize(
+    start = sum(case_when(start == TRUE ~ 1, TRUE ~ 0)),
+    middle = sum(case_when(middle == TRUE ~ 1, TRUE ~ 0)),
+    end = sum(case_when(end == TRUE ~ 1, TRUE ~ 0)),
+    none = sum(case_when(none == TRUE ~ 1, TRUE ~ 0)),
+    total = n()
+  ) %>%
+  mutate(
+    start_prop = start / total,
+    middle_prop = middle / total,
+    end_prop = end / total,
+    none_prop = none / total
+  ) %>%
+  select(start_prop, middle_prop, end_prop, none_prop)
+```
+
+> proportion of banks with "bank" at the start: 0.056 (5.6%)
+>
+> proportion of banks with "bank" in the middle: 0.096 (9.6%)
+>
+> proportion of banks with "bank" at the end: 0.664 (66.4%)
+>
+> proportion of banks without "bank": 0.184 (18.4%)
+
+## 2.6
+
+```{r 2.6a}
+ggplot(bank_position, aes(x = confirm, y = log(consolidated_assets))) +
+  geom_boxplot(notch = TRUE) +
+  xlab("Position of 'BANK' in Bank's Name") +
+  ylab("Log of Combined Total Assets") +
+  ggtitle("Distribution of Log of Combined Total Assets by 'BANK' Position") +
+  theme_bw()
+```
+
+> 2.6b: When looking a the boxplots, we can see a couple key things: firstly, the notches overlap. This indicates that there isn't strong evidence to suggest that the medians differ. In other words, the medians both look and probably are quite similar. While the banks with the word "BANK" at the middle position have the highest IQR, the spread of all the boxplots are relatively similar. Though I would need to run an actual statistical test to make an actual conclusion, based on the boxplots, I would say that there doesn't appear to be a relationship between the position of "BANK" in a bank's name and the log of combined total assets.
+
+```{r 2.6c}
+anova_result <- aov(log(consolidated_assets) ~ confirm, data = bank_position)
+summary(anova_result)
+```
+
+> interpretation of 2.6c: the p-value of confirm is 0.576 is not statistically significant at any level. Thus, we fail to reject the null hypothesis. Therefore, we can conclude that there is not enough evidence to suggest that the position of the word "BANK" significantly effects the log of combined total assets.
